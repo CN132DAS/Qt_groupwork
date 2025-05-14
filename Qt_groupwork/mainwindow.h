@@ -5,6 +5,8 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QIcon>
+#include <QAction>
+#include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

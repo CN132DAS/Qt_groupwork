@@ -14,23 +14,28 @@ MainWindow::MainWindow(QWidget *parent)
     QMenuBar *menuBar_ = new QMenuBar(this);
     this->setMenuBar(menuBar_);
 
-    QMenu* fileOp = new QMenu("文件",menuBar_);
-    QMenu* newFile = new QMenu("新建",this);
-    QMenu* openFile = new QMenu("打开",this);
-    QMenu* save = new QMenu("保存",this);
-    QMenu* saveAs = new QMenu("另存为",this);
+    QMenu* fileOp = new QMenu(QStringLiteral("文件(&F)"),this);
+    QAction* newFile = new QAction(QStringLiteral("新建(&N)"),this);
+    QAction* openFile = new QAction(QStringLiteral("打开(&O)"),this);
+    QAction* save = new QAction(QStringLiteral("保存(&S)"),this);
+    QAction* saveAs = new QAction(QStringLiteral("另存为(&A)"),this);
 
     menuBar_->addMenu(fileOp);
-    fileOp->addMenu(newFile);
-    fileOp->addMenu(openFile);
+    fileOp->addAction(newFile);
+    fileOp->addAction(openFile);
     fileOp->addSeparator();
-    fileOp->addMenu(save);
-    fileOp->addMenu(saveAs);
+    fileOp->addAction(save);
+    fileOp->addAction(saveAs);
 
     QIcon newFile_QI (":/assets/new-file.svg");
     QIcon openFile_QI(":/assets/file.svg");
     QIcon save_QI(":/assets/save.svg");
     QIcon saveAs_QI(":/assets/save-as.svg");
+
+    newFile->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_N));
+    openFile->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_O));
+    save->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_S));
+    saveAs->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_A));
 
     newFile->setIcon(newFile_QI);
     openFile->setIcon(openFile_QI);
