@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/WindowIcon.png</file>
+        <file>assets/new-file.svg</file>
+        <file>assets/file.svg</file>
+        <file>assets/save.svg</file>
+        <file>assets/save-as.svg</file>
+    </qresource>
+</RCC>
