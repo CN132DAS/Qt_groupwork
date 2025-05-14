@@ -14,14 +14,16 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     position.cpp \
-    savefile.cpp
+    savefile.cpp \
+    setting.cpp
 
 HEADERS += \
     connection.h \
     content.h \
     mainwindow.h \
     position.h \
-    savefile.h
+    savefile.h \
+    setting.h
 
 FORMS += \
     mainwindow.ui

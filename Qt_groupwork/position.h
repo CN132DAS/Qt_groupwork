@@ -1,7 +1,7 @@
 #ifndef POSITION_H
 #define POSITION_H
 
-class Position
+class Position//描述位置
 {
     int x,y;
 public:

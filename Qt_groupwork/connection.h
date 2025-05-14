@@ -3,7 +3,7 @@
 
 #include"content.h"
 
-class Connection
+class Connection //用于连接content的曲线
 {
     Content* c1,c2;
 public:
