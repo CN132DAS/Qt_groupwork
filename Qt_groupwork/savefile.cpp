@@ -1,5 +1,5 @@
 #include "savefile.h"
 
-SaveFile::SaveFile(QObject *parent)
-    : QObject{parent}
+SaveFile::SaveFile(QString saveName_,QObject *parent)
+    : QObject{parent},saveName(saveName_)
 {}

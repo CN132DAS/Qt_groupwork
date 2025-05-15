@@ -7,14 +7,19 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->resize(1100,700);
+    this->setStyleSheet("MainWindow{background-color:#F9F9F9;}");
     setWindowTitle("MindMap");
     QIcon WindowIcon(":/assets/WindowIcon.png");
     setWindowIcon(WindowIcon);
+    QFile theme(":/assets/theme.qss");
+    theme.open(QIODevice::ReadOnly);
 
     QMenuBar *menuBar_ = new QMenuBar(this);
     this->setMenuBar(menuBar_);
+    menuBar_->setStyleSheet("QMenuBar{background-color:#CDDEEB;}");
 
     QMenu* fileOp = new QMenu(QStringLiteral("文件(&F)"),this);
+
     QAction* newFile = new QAction(QStringLiteral("新建(&N)"),this);
     QAction* openFile = new QAction(QStringLiteral("打开(&O)"),this);
     QAction* save = new QAction(QStringLiteral("保存(&S)"),this);
@@ -42,9 +47,21 @@ MainWindow::MainWindow(QWidget *parent)
     save->setIcon(save_QI);
     saveAs->setIcon(saveAs_QI);
 
+    connect(newFile,&QAction::triggered,this,&MainWindow::newFile_clicked);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::newFile_clicked(){
+    bool ok{};
+    QString saveName;
+    while(1){
+        saveName = QInputDialog::getText(this,"新建文件","名称",QLineEdit::Normal,QString("新建文件"),&ok);
+        if(ok&&!saveName.isEmpty())
+            break;
+    }
+    SaveFile save(saveName);
 }

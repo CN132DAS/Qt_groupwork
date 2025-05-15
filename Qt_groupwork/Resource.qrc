@@ -5,5 +5,6 @@
         <file>assets/file.svg</file>
         <file>assets/save.svg</file>
         <file>assets/save-as.svg</file>
+        <file>assets/theme.qss</file>
     </qresource>
 </RCC>
