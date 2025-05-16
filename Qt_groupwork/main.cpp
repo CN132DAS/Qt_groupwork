@@ -1,6 +1,10 @@
 #include "mainwindow.h"
+#include "savefile.h"
+
 
 #include <QApplication>
+
+SaveFile* save_S;
 
 int main(int argc, char *argv[])
 {
