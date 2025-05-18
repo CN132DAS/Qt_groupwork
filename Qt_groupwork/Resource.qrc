@@ -6,5 +6,10 @@
         <file>assets/save.svg</file>
         <file>assets/save-as.svg</file>
         <file>assets/theme.qss</file>
+        <file>assets/add-file.svg</file>
+        <file>assets/add-text.svg</file>
+        <file>assets/close.svg</file>
+        <file>assets/redo.svg</file>
+        <file>assets/undo.svg</file>
     </qresource>
 </RCC>

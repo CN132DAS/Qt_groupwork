@@ -8,11 +8,14 @@
 #include <QAction>
 #include <QKeySequence>
 #include <QFile>
+#include <QResizeEvent>
 #include <QInputDialog>
 #include <QDebug>
+#include <QToolBar>
 #include <QGridLayout>
+#include <QRect>
+#include "mindmapviewer.h"
 #include "savefile.h"
-#include "mygraphicsview.h"
 #include "setting.h"
 
 QT_BEGIN_NAMESPACE
@@ -26,26 +29,34 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     SaveFile* save_SF;
-    MyGraphicsView* view;
-    Setting s; //储存一些设定，是否有存在必要仍需观察
+    MindMapViewer* viewer;
+    Setting s;
 
-    QMenuBar* menuBar_;
+    QMenuBar* menuBar;
+    QToolBar* toolBar;
 
     QMenu* fileOp;
     QAction* newFile_A;
     QAction* openFile_A;
     QAction* save_A;
     QAction* saveAs_A;
-    QGridLayout* layout;
+    QAction* close_A;
 
+    QMenu* edit;
+    QAction* undo_A;
+    QAction* redo_A;
+    QAction* addText_A;
+    QAction* addFile_A;
+
+    void resizeEvent(QResizeEvent* event);
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-private slots:
+public slots:
     void newFile_clicked();
 signals:
-    void save_created(QString saveName_,QWidget *parent);
+    void create_save(QString saveName_);
 
 private:
     Ui::MainWindow *ui;

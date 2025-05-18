@@ -6,56 +6,106 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QFile theme(":/assets/theme.qss");
+    theme.open(QFile::ReadOnly);
+    this->setStyleSheet(theme.readAll());
+    theme.close();
     this->resize(1100,700);
-    this->setStyleSheet("MainWindow{background-color:#F9F9F9;}");
+    int h = this->height();
+    int w = this->width();
+
     setWindowTitle("MindMap");
     QIcon WindowIcon(":/assets/WindowIcon.png");
     setWindowIcon(WindowIcon);
-    QFile theme(":/assets/theme.qss");
-    theme.open(QIODevice::ReadOnly);
+
+    menuBar = new QMenuBar(this);
+    this->setMenuBar(menuBar);
+    int menuBarH = menuBar->height();
+
+    toolBar = new QToolBar(this);
+    toolBar->setMovable(false);
+    toolBar->setFloatable(false);
+    toolBar->move(0,menuBarH);
+    toolBar->resize(100,h-menuBarH);
+
+    viewer = new MindMapViewer(this);
+    viewer->move(100,menuBarH);
+    viewer->resize(w-100,h-menuBarH);
 
     save_SF = new SaveFile("",this);
-    view = new MyGraphicsView(this);
 
-    layout = new QGridLayout();
+    {//第一个Qmenu及相关按钮的初始化
+        fileOp = new QMenu(QStringLiteral("文件(&F)"),this);
 
-    menuBar_ = new QMenuBar(this);
-    this->setMenuBar(menuBar_);
-    menuBar_->setStyleSheet("QMenuBar{background-color:#CDDEEB;}");
+        newFile_A = new QAction(QStringLiteral("新建"),this);
+        openFile_A = new QAction(QStringLiteral("打开"),this);
+        save_A = new QAction(QStringLiteral("保存"),this);
+        saveAs_A = new QAction(QStringLiteral("另存为"),this);
+        close_A = new QAction(QStringLiteral("关闭"),this);
 
-    fileOp = new QMenu(QStringLiteral("文件(&F)"),this);
+        newFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_N));
+        openFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_O));
+        save_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_S));
+        saveAs_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_A));
+        close_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_W));
 
-    newFile_A = new QAction(QStringLiteral("新建(&N)"),this);
-    openFile_A = new QAction(QStringLiteral("打开(&O)"),this);
-    save_A = new QAction(QStringLiteral("保存(&S)"),this);
-    saveAs_A = new QAction(QStringLiteral("另存为(&A)"),this);
+        QIcon newFile_QI (":/assets/new-file.svg");
+        QIcon openFile_QI(":/assets/file.svg");
+        QIcon save_QI(":/assets/save.svg");
+        QIcon saveAs_QI(":/assets/save-as.svg");
+        QIcon close_QI(":/assets/close.svg");
 
-    menuBar_->addMenu(fileOp);
-    fileOp->addAction(newFile_A);
-    fileOp->addAction(openFile_A);
-    fileOp->addSeparator();
-    fileOp->addAction(save_A);
-    fileOp->addAction(saveAs_A);
+        newFile_A->setIcon(newFile_QI);
+        openFile_A->setIcon(openFile_QI);
+        save_A->setIcon(save_QI);
+        saveAs_A->setIcon(saveAs_QI);
+        close_A->setIcon(close_QI);
 
-    QIcon newFile_QI (":/assets/new-file.svg");
-    QIcon openFile_QI(":/assets/file.svg");
-    QIcon save_QI(":/assets/save.svg");
-    QIcon saveAs_QI(":/assets/save-as.svg");
+        menuBar->addMenu(fileOp);
+        fileOp->addAction(newFile_A);
+        fileOp->addAction(openFile_A);
+        fileOp->addSeparator();
+        fileOp->addAction(save_A);
+        fileOp->addAction(saveAs_A);
+        fileOp->addSeparator();
+        fileOp->addAction(close_A);
 
-    newFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_N));
-    openFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_O));
-    save_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_S));
-    saveAs_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_A));
+        connect(newFile_A,&QAction::triggered,
+                this,&MainWindow::newFile_clicked);
+        connect(this,&MainWindow::create_save,
+                save_SF,&SaveFile::create_save);
+    }
 
-    newFile_A->setIcon(newFile_QI);
-    openFile_A->setIcon(openFile_QI);
-    save_A->setIcon(save_QI);
-    saveAs_A->setIcon(saveAs_QI);
+    {
+        edit = new QMenu(QStringLiteral("编辑(&E)"),this);
 
-    connect(save_SF,&SaveFile::init_done,
-            view,&MyGraphicsView::showView);
-    connect(newFile_A,&QAction::triggered,
-            this,&MainWindow::newFile_clicked);
+        undo_A = new QAction(QStringLiteral("撤销"),this);
+        redo_A = new QAction(QStringLiteral("重做"),this);
+        addText_A = new QAction(QStringLiteral("添加语段"),this);
+        addFile_A = new QAction(QStringLiteral("添加文件"),this);
+
+        undo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Z));
+        redo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Y));
+        addText_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_T));
+        addFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_F));
+
+        QIcon undo_QI(":/assets/undo.svg");
+        QIcon redo_QI(":/assets/redo.svg");
+        QIcon addText_QI(":/assets/add-text.svg");
+        QIcon addFile_QI(":/assets/add-file.svg");
+
+        undo_A->setIcon(undo_QI);
+        redo_A->setIcon(redo_QI);
+        addText_A->setIcon(addText_QI);
+        addFile_A->setIcon(addFile_QI);
+
+        menuBar->addMenu(edit);
+        edit->addAction(undo_A);
+        edit->addAction(redo_A);
+        edit->addSeparator();
+        edit->addAction(addText_A);
+        edit->addAction(addFile_A);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -72,7 +122,13 @@ void MainWindow::newFile_clicked(){
             break;
     }
     save_SF = new SaveFile;
-    connect(this,&MainWindow::save_created,
-            save_SF,&SaveFile::create_save);
-    emit save_created(saveName,this);
+    emit create_save(saveName);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event){
+    int h_ = event->size().height();
+    int w_ = event->size().width();
+    int menuBarH = menuBar->height();
+    toolBar->resize(100,h_-menuBarH);
+    viewer->resize(w_-100,h_-menuBarH);
 }

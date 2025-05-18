@@ -1,1 +1,3 @@
-QMenuBar{background-color:black;}
+QMenuBar{background-color:#CDDEEB;}
+QToolBar{background-color:white;}
+MainWindow{background-color:#F9F9F9;}
