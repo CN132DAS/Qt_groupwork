@@ -4,8 +4,6 @@
 
 #include <QApplication>
 
-SaveFile* save_S;
-
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

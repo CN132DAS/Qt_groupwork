@@ -13,6 +13,7 @@ SOURCES += \
     content.cpp \
     main.cpp \
     mainwindow.cpp \
+    mygraphicsview.cpp \
     position.cpp \
     savefile.cpp \
     setting.cpp
@@ -21,6 +22,7 @@ HEADERS += \
     connection.h \
     content.h \
     mainwindow.h \
+    mygraphicsview.h \
     position.h \
     savefile.h \
     setting.h

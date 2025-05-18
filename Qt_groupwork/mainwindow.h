@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <QGridLayout>
 #include "savefile.h"
+#include "mygraphicsview.h"
+#include "setting.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,6 +25,10 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
+    SaveFile* save_SF;
+    MyGraphicsView* view;
+    Setting s; //储存一些设定，是否有存在必要仍需观察
+
     QMenuBar* menuBar_;
 
     QMenu* fileOp;

@@ -14,8 +14,10 @@ MainWindow::MainWindow(QWidget *parent)
     QFile theme(":/assets/theme.qss");
     theme.open(QIODevice::ReadOnly);
 
-    layout = new QGridLayout();
+    save_SF = new SaveFile("",this);
+    view = new MyGraphicsView(this);
 
+    layout = new QGridLayout();
 
     menuBar_ = new QMenuBar(this);
     this->setMenuBar(menuBar_);
@@ -50,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent)
     save_A->setIcon(save_QI);
     saveAs_A->setIcon(saveAs_QI);
 
+    connect(save_SF,&SaveFile::init_done,
+            view,&MyGraphicsView::showView);
     connect(newFile_A,&QAction::triggered,
             this,&MainWindow::newFile_clicked);
 }
@@ -67,9 +71,8 @@ void MainWindow::newFile_clicked(){
         if(ok&&!saveName.isEmpty())
             break;
     }
-    extern SaveFile* save_S;
-    save_S = new SaveFile;
+    save_SF = new SaveFile;
     connect(this,&MainWindow::save_created,
-            save_S,&SaveFile::create_save);
+            save_SF,&SaveFile::create_save);
     emit save_created(saveName,this);
 }
