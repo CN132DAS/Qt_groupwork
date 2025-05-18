@@ -10,10 +10,16 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    mindmapviewer.cpp \
+    savefile.cpp \
+    setting.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    mindmapviewer.h \
+    savefile.h \
+    setting.h
 
 FORMS += \
     mainwindow.ui
@@ -22,3 +28,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    Resource.qrc
