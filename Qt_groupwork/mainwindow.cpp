@@ -76,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
                 save_SF,&SaveFile::create_save);
     }
 
-    {
+    {//第二个Qmenu及相关按钮的初始化
         edit = new QMenu(QStringLiteral("编辑(&E)"),this);
 
         undo_A = new QAction(QStringLiteral("撤销"),this);
@@ -117,10 +117,20 @@ void MainWindow::newFile_clicked(){
     bool ok{};
     QString saveName;
     while(1){
-        saveName = QInputDialog::getText(this,"新建文件","名称",QLineEdit::Normal,QString("新建文件"),&ok);
-        if(ok&&!saveName.isEmpty())
+        saveName = QInputDialog::getText(this,"新建文件","存档名",QLineEdit::Normal,QString("新建存档"),&ok);
+        extern QString savePath;
+        if(!ok)
+            return;
+        if(QDir(savePath+"/"+saveName).exists()){
+            QMessageBox::warning(this,"存档已存在","存档已存在\n请更换存档名");
+            ok = false;
+        }
+        if(ok&&!saveName.isEmpty()){
+            QDir(savePath+"/"+saveName).mkdir(savePath+"/"+saveName);
             break;
+        }
     }
+    viewer->init();
     save_SF = new SaveFile;
     emit create_save(saveName);
 }

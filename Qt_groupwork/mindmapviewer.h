@@ -11,7 +11,7 @@ private:
     QGraphicsScene* scene;
 public:
     MindMapViewer(QWidget* parent= nullptr);
-    void show();
+    void init();
 };
 
 #endif // MINDMAPVIEWER_H

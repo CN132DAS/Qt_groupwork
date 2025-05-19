@@ -9,6 +9,7 @@ MindMapViewer::MindMapViewer(QWidget* parent_):QGraphicsView(parent_),scene(null
     setInteractive(false);
     setEnabled(false);
 }
-void MindMapViewer::show(){
-    setEnabled(true);
+void MindMapViewer::init(){
+    scene->clear();
+    this->update();
 }
