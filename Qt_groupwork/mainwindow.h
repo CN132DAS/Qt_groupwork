@@ -12,6 +12,8 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMouseEvent>
+#include <QPushButton>
 #include <QRect>
 #include <QResizeEvent>
 #include <QToolBar>
@@ -32,9 +34,9 @@ private:
     SaveFile* save_SF;
     MindMapViewer* viewer;
     Setting s;
+    QString state;
 
     QMenuBar* menuBar;
-    QToolBar* toolBar;
 
     QMenu* fileOp;
     QAction* newFile_A;
@@ -47,18 +49,31 @@ private:
     QAction* undo_A;
     QAction* redo_A;
     QAction* addText_A;
+    QAction* addPic_A;
     QAction* addFile_A;
 
-    void resizeEvent(QResizeEvent* event);
+    QToolBar* toolBar;
 
+    QPushButton* addText_PB;
+    QPushButton* addPic_PB;
+    QPushButton* addFile_PB;
+
+    void resizeEvent(QResizeEvent* event);
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QString get_state();
+    void mousePressEvent(QMouseEvent* event);
 public slots:
     void newFile_clicked();
+    void only_toggle_addText_PB(bool checked);
+    void only_toggle_addPic_PB(bool checked);
+    void only_toggle_addFile_PB(bool checked);
+    void set_text_checked();
+    void set_pic_checked();
+    void set_file_checked();
 signals:
     void create_save(QString saveName_);
-
 private:
     Ui::MainWindow *ui;
 };

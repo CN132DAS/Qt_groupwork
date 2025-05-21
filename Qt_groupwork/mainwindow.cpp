@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     int menuBarH = menuBar->height();
 
     toolBar = new QToolBar(this);
+    toolBar->setOrientation(Qt::Orientation::Vertical);
     toolBar->setMovable(false);
     toolBar->setFloatable(false);
     toolBar->move(0,menuBarH);
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     viewer = new MindMapViewer(this);
     viewer->move(100,menuBarH);
     viewer->resize(w-100,h-menuBarH);
+    viewer->setEnabled(false);
 
     save_SF = new SaveFile("",this);
 
@@ -70,10 +72,16 @@ MainWindow::MainWindow(QWidget *parent)
         fileOp->addSeparator();
         fileOp->addAction(close_A);
 
+        save_A->setEnabled(false);
+        saveAs_A->setEnabled(false);
+        close_A->setEnabled(false);
+
         connect(newFile_A,&QAction::triggered,
                 this,&MainWindow::newFile_clicked);
         connect(this,&MainWindow::create_save,
                 save_SF,&SaveFile::create_save);
+        connect(save_SF,&SaveFile::init_done,
+                viewer,&MindMapViewer::init);
     }
 
     {//第二个Qmenu及相关按钮的初始化
@@ -81,22 +89,26 @@ MainWindow::MainWindow(QWidget *parent)
 
         undo_A = new QAction(QStringLiteral("撤销"),this);
         redo_A = new QAction(QStringLiteral("重做"),this);
-        addText_A = new QAction(QStringLiteral("添加语段"),this);
-        addFile_A = new QAction(QStringLiteral("添加文件"),this);
+        addText_A = new QAction(QStringLiteral("插入文字"),this);
+        addPic_A = new QAction(QStringLiteral("插入图片"),this);
+        addFile_A = new QAction(QStringLiteral("插入文件"),this);
 
         undo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Z));
         redo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Y));
         addText_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_T));
+        addPic_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_P));
         addFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_F));
 
         QIcon undo_QI(":/assets/undo.svg");
         QIcon redo_QI(":/assets/redo.svg");
         QIcon addText_QI(":/assets/add-text.svg");
+        QIcon addPic_QI(":/assets/add-pic.svg");
         QIcon addFile_QI(":/assets/add-file.svg");
 
         undo_A->setIcon(undo_QI);
         redo_A->setIcon(redo_QI);
         addText_A->setIcon(addText_QI);
+        addPic_A->setIcon(addPic_QI);
         addFile_A->setIcon(addFile_QI);
 
         menuBar->addMenu(edit);
@@ -104,7 +116,57 @@ MainWindow::MainWindow(QWidget *parent)
         edit->addAction(redo_A);
         edit->addSeparator();
         edit->addAction(addText_A);
+        edit->addAction(addPic_A);
         edit->addAction(addFile_A);
+
+        undo_A->setEnabled(false);
+        redo_A->setEnabled(false);
+        addText_A->setEnabled(false);
+        addPic_A->setEnabled(false);
+        addFile_A->setEnabled(false);
+
+        connect(addText_A,&QAction::triggered,
+                this,&MainWindow::set_text_checked);
+        connect(addPic_A,&QAction::triggered,
+                this,&MainWindow::set_pic_checked);
+        connect(addFile_A,&QAction::triggered,
+                this,&MainWindow::set_file_checked);
+    }
+
+    {//QToolBar中按钮的初始化
+        addText_PB = new QPushButton("插入文字",toolBar);
+        addPic_PB = new QPushButton("插入图片",toolBar);
+        addFile_PB = new QPushButton("插入文件",toolBar);
+
+        QIcon addText_Q(":/assets/add-text.svg");
+        QIcon addPic_Q(":/assets/add-pic.svg");
+        QIcon addFile_Q(":/assets/add-file.svg");
+
+        addText_PB->setIcon(addText_Q);
+        addPic_PB->setIcon(addPic_Q);
+        addFile_PB->setIcon(addFile_Q);
+        addText_PB->setIconSize(QSize(40,40));
+        addPic_PB->setIconSize(QSize(40,40));
+        addFile_PB->setIconSize(QSize(40,40));
+
+        addText_PB->setCheckable(true);
+        addPic_PB->setCheckable(true);
+        addFile_PB->setCheckable(true);
+
+        toolBar->addWidget(addText_PB);
+        toolBar->addWidget(addPic_PB);
+        toolBar->addWidget(addFile_PB);
+
+        addText_PB->setEnabled(false);
+        addPic_PB->setEnabled(false);
+        addFile_PB->setEnabled(false);
+
+        connect(addText_PB,&QAbstractButton::toggled,
+                this,&MainWindow::only_toggle_addText_PB);
+        connect(addPic_PB,&QAbstractButton::toggled,
+                this,&MainWindow::only_toggle_addPic_PB);
+        connect(addFile_PB,&QAbstractButton::toggled,
+                this,&MainWindow::only_toggle_addFile_PB);
     }
 }
 
@@ -130,7 +192,20 @@ void MainWindow::newFile_clicked(){
             break;
         }
     }
-    viewer->init();
+
+    {
+        close_A->setEnabled(true);
+        undo_A->setEnabled(true);
+        redo_A->setEnabled(true);
+        save_A->setEnabled(true);
+        saveAs_A->setEnabled(true);
+        addText_A->setEnabled(true);
+        addPic_A->setEnabled(true);
+        addFile_A->setEnabled(true);
+        addText_PB->setEnabled(true);
+        addPic_PB->setEnabled(true);
+        addFile_PB->setEnabled(true);
+    }
     save_SF = new SaveFile;
     emit create_save(saveName);
 }
@@ -141,4 +216,62 @@ void MainWindow::resizeEvent(QResizeEvent *event){
     int menuBarH = menuBar->height();
     toolBar->resize(100,h_-menuBarH);
     viewer->resize(w_-100,h_-menuBarH);
+}
+
+void MainWindow::only_toggle_addText_PB(bool checked){
+    if(checked){
+        addFile_PB->setChecked(false);
+        addPic_PB->setChecked(false);
+        state = "addText";
+        viewer->set_state("addText");
+    }
+    else
+        state = "";
+    viewer->set_state("");
+}
+
+void MainWindow::only_toggle_addFile_PB(bool checked){
+    if(checked){
+        addText_PB->setChecked(false);
+        addPic_PB->setChecked(false);
+        state = "addFile";
+        viewer->set_state("addFile");
+    }
+    else
+        state = "";
+    viewer->set_state("");
+}
+
+void MainWindow::only_toggle_addPic_PB(bool checked){
+    if(checked){
+        addText_PB->setChecked(false);
+        addFile_PB->setChecked(false);
+        state = "addPic";
+        viewer->set_state("addPic");
+    }
+    else
+        state = "";
+    viewer->set_state("");
+}
+
+void MainWindow::set_text_checked(){
+    addText_PB->setChecked(true);
+}
+
+void MainWindow::set_pic_checked(){
+    addPic_PB->setChecked(true);
+}
+
+void MainWindow::set_file_checked(){
+    addFile_PB->setChecked(true);
+}
+
+void MainWindow::mousePressEvent(QMouseEvent* event){
+    QPoint tmp = event->pos();
+    if(tmp.y()>30&&tmp.x()>100)
+        viewer->mousePressEvent(event);
+}
+
+QString MainWindow::get_state(){
+    return state;
 }

@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();
 }
+
 void init()
 {
     QDir current = QDir::current();

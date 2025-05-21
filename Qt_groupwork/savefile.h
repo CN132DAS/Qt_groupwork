@@ -19,8 +19,7 @@ public:
 public slots:
     void create_save(QString saveName_);
 signals:
-    void init_done();
-
+    void init_done(SaveFile* save);
     friend class MainWindow;
 };
 
