@@ -34,7 +34,6 @@ private:
     SaveFile* save_SF;
     MindMapViewer* viewer;
     Setting s;
-    QString state;
 
     QMenuBar* menuBar;
 
@@ -57,18 +56,20 @@ private:
     QPushButton* addText_PB;
     QPushButton* addPic_PB;
     QPushButton* addFile_PB;
+    QPushButton* drag_PB;
 
     void resizeEvent(QResizeEvent* event);
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QString get_state();
+
     void mousePressEvent(QMouseEvent* event);
 public slots:
     void newFile_clicked();
     void only_toggle_addText_PB(bool checked);
     void only_toggle_addPic_PB(bool checked);
     void only_toggle_addFile_PB(bool checked);
+    void only_toggle_drag_PB(bool checked);
     void set_text_checked();
     void set_pic_checked();
     void set_file_checked();

@@ -137,29 +137,37 @@ MainWindow::MainWindow(QWidget *parent)
         addText_PB = new QPushButton("插入文字",toolBar);
         addPic_PB = new QPushButton("插入图片",toolBar);
         addFile_PB = new QPushButton("插入文件",toolBar);
+        drag_PB = new QPushButton("拖动画布",toolBar);
 
         QIcon addText_Q(":/assets/add-text.svg");
         QIcon addPic_Q(":/assets/add-pic.svg");
         QIcon addFile_Q(":/assets/add-file.svg");
+        QIcon drag_Q(":/assets/drag.svg");
 
         addText_PB->setIcon(addText_Q);
         addPic_PB->setIcon(addPic_Q);
         addFile_PB->setIcon(addFile_Q);
+        drag_PB->setIcon(drag_Q);
+
         addText_PB->setIconSize(QSize(40,40));
         addPic_PB->setIconSize(QSize(40,40));
         addFile_PB->setIconSize(QSize(40,40));
+        drag_PB->setIconSize(QSize(40,40));
 
         addText_PB->setCheckable(true);
         addPic_PB->setCheckable(true);
         addFile_PB->setCheckable(true);
+        drag_PB->setCheckable(true);
 
         toolBar->addWidget(addText_PB);
         toolBar->addWidget(addPic_PB);
         toolBar->addWidget(addFile_PB);
+        toolBar->addWidget(drag_PB);
 
         addText_PB->setEnabled(false);
         addPic_PB->setEnabled(false);
         addFile_PB->setEnabled(false);
+        drag_PB->setEnabled(false);
 
         connect(addText_PB,&QAbstractButton::toggled,
                 this,&MainWindow::only_toggle_addText_PB);
@@ -167,6 +175,10 @@ MainWindow::MainWindow(QWidget *parent)
                 this,&MainWindow::only_toggle_addPic_PB);
         connect(addFile_PB,&QAbstractButton::toggled,
                 this,&MainWindow::only_toggle_addFile_PB);
+        connect(drag_PB,&QAbstractButton::toggled,
+                this,&MainWindow::only_toggle_drag_PB);
+        connect(drag_PB,&QAbstractButton::toggled,
+                             viewer,&MindMapViewer::set_drag_mode);
     }
 }
 
@@ -205,6 +217,7 @@ void MainWindow::newFile_clicked(){
         addText_PB->setEnabled(true);
         addPic_PB->setEnabled(true);
         addFile_PB->setEnabled(true);
+        drag_PB->setEnabled(true);
     }
     save_SF = new SaveFile;
     emit create_save(saveName);
@@ -222,11 +235,10 @@ void MainWindow::only_toggle_addText_PB(bool checked){
     if(checked){
         addFile_PB->setChecked(false);
         addPic_PB->setChecked(false);
-        state = "addText";
+        drag_PB->setChecked(false);
         viewer->set_state("addText");
     }
     else
-        state = "";
     viewer->set_state("");
 }
 
@@ -234,11 +246,10 @@ void MainWindow::only_toggle_addFile_PB(bool checked){
     if(checked){
         addText_PB->setChecked(false);
         addPic_PB->setChecked(false);
-        state = "addFile";
+        drag_PB->setChecked(false);
         viewer->set_state("addFile");
     }
     else
-        state = "";
     viewer->set_state("");
 }
 
@@ -246,12 +257,21 @@ void MainWindow::only_toggle_addPic_PB(bool checked){
     if(checked){
         addText_PB->setChecked(false);
         addFile_PB->setChecked(false);
-        state = "addPic";
+        drag_PB->setChecked(false);
         viewer->set_state("addPic");
     }
     else
-        state = "";
     viewer->set_state("");
+}
+void MainWindow::only_toggle_drag_PB(bool checked){
+    if(checked){
+        addText_PB->setChecked(false);
+        addFile_PB->setChecked(false);
+        addPic_PB->setChecked(false);
+        viewer->set_state("drag");
+    }
+    else
+        viewer->set_state("");
 }
 
 void MainWindow::set_text_checked(){
@@ -272,6 +292,4 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
         viewer->mousePressEvent(event);
 }
 
-QString MainWindow::get_state(){
-    return state;
-}
+

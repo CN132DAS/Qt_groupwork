@@ -12,5 +12,6 @@
         <file>assets/redo.svg</file>
         <file>assets/undo.svg</file>
         <file>assets/add-pic.svg</file>
+        <file>assets/drag.svg</file>
     </qresource>
 </RCC>
