@@ -58,12 +58,13 @@ private:
     QPushButton* addFile_PB;
     QPushButton* drag_PB;
 
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 public slots:
     void newFile_clicked();
     void only_toggle_addText_PB(bool checked);

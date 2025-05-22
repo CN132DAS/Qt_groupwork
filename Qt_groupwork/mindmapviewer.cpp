@@ -31,6 +31,16 @@ void MindMapViewer::set_state(QString str){
     state = str;
 }
 
+void MindMapViewer::wheelEvent(QWheelEvent* event){
+    setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+    double scaleFactor = 1.15;
+    if (event->angleDelta().y() > 0) {
+        scale(scaleFactor, scaleFactor);
+    } else {
+        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+    }
+}
+
 void MindMapViewer::mousePressEvent(QMouseEvent* event){
     if(!this->isEnabled())
         return;
@@ -63,7 +73,7 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
         if(state == "addFile"){
             return;
         }
-        else{
+        else if(state =="drag"){
             return;
         }
     }

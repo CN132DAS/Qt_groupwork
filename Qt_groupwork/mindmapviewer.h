@@ -25,7 +25,8 @@ private:
 public:
     MindMapViewer(QWidget* parent= nullptr);
     void set_state(QString str);
-    void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 public slots:
     void init(SaveFile* save);
     void set_drag_mode(bool checked);

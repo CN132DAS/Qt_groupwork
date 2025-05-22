@@ -292,4 +292,9 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
         viewer->mousePressEvent(event);
 }
 
+void MainWindow::wheelEvent(QWheelEvent* event){
+    QPointF tmp = event->position();
+    if(tmp.y()>30&&tmp.x()>100)
+        viewer->wheelEvent(event);
+}
 
