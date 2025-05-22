@@ -290,11 +290,27 @@ void MainWindow::mousePressEvent(QMouseEvent* event){
     QPoint tmp = event->pos();
     if(tmp.y()>30&&tmp.x()>100)
         viewer->mousePressEvent(event);
+    event->accept();
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent* event){
+    QPoint tmp = event->pos();
+    if((tmp.y()>30&&tmp.x()>100)||viewer->is_panning())
+        viewer->mouseMoveEvent(event);
+    event->accept();
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent* event){
+    QPoint tmp = event->pos();
+    if((tmp.y()>30&&tmp.x()>100)||viewer->is_panning())
+        viewer->mouseReleaseEvent(event);
+    event->accept();
 }
 
 void MainWindow::wheelEvent(QWheelEvent* event){
     QPointF tmp = event->position();
     if(tmp.y()>30&&tmp.x()>100)
         viewer->wheelEvent(event);
+    event->accept();
 }
 

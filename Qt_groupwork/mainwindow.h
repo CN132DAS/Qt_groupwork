@@ -64,6 +64,8 @@ public:
     ~MainWindow();
 
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 public slots:
     void newFile_clicked();

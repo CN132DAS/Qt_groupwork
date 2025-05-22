@@ -7,6 +7,7 @@
 #include <QGraphicsView>
 #include <QMouseEvent>
 #include <QPixmap>
+#include <QScrollBar>
 #include <QWidget>
 #include "savefile.h"
 
@@ -15,18 +16,21 @@ extern QString savePath;
 class MindMapViewer : public QGraphicsView
 {
 private:
-    QString state;
-    QWidget* parent;
+    QPointF tmp_pos;
+    QPointF centerAnchor;
     QGraphicsScene* scene;
+    QWidget* parent;
+    QString state;
     SaveFile* save_SF;
     bool m_panning;
-    int m_panStartX;
-    int m_panStartY;
 public:
     MindMapViewer(QWidget* parent= nullptr);
     void set_state(QString str);
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
+    bool is_panning();
 public slots:
     void init(SaveFile* save);
     void set_drag_mode(bool checked);

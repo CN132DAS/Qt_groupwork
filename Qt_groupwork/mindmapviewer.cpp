@@ -1,7 +1,6 @@
 #include "mindmapviewer.h"
 
-MindMapViewer::MindMapViewer(QWidget* parent_):QGraphicsView(parent_),scene(nullptr),
-                                                m_panning(false), m_panStartX(0), m_panStartY(0){
+MindMapViewer::MindMapViewer(QWidget* parent_):QGraphicsView(parent_),scene(nullptr),m_panning(false){
     parent = parent_;
     scene = new QGraphicsScene(this);
     scene->setSceneRect(-1e6,-1e6,2e6,2e6);
@@ -10,6 +9,12 @@ MindMapViewer::MindMapViewer(QWidget* parent_):QGraphicsView(parent_),scene(null
     setDragMode(QGraphicsView::DragMode::NoDrag);
     setInteractive(false);
     setEnabled(false);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+}
+
+bool MindMapViewer::is_panning(){
+    return m_panning;
 }
 
 void MindMapViewer::init(SaveFile* save){
@@ -29,16 +34,6 @@ void MindMapViewer::set_drag_mode(bool checked){
 
 void MindMapViewer::set_state(QString str){
     state = str;
-}
-
-void MindMapViewer::wheelEvent(QWheelEvent* event){
-    setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-    double scaleFactor = 1.15;
-    if (event->angleDelta().y() > 0) {
-        scale(scaleFactor, scaleFactor);
-    } else {
-        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-    }
 }
 
 void MindMapViewer::mousePressEvent(QMouseEvent* event){
@@ -74,8 +69,39 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             return;
         }
         else if(state =="drag"){
-            return;
+            centerAnchor = mapToScene(event->pos()) - event->pos() + QPointF(width() / 2, height() / 2);
+            tmp_pos = event->pos();
+            m_panning = true;
+            setCursor(Qt::ClosedHandCursor);
         }
     }
+    event->accept();
 }
 
+void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
+    if(state =="drag"&&m_panning){
+        QPointF delta = event->pos() - tmp_pos;
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        centerOn(centerAnchor - delta);
+    }
+    event->accept();
+}
+
+void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
+    if(state =="drag"){
+        setCursor(Qt::ArrowCursor);
+        m_panning = false;
+    }
+    event->accept();
+}
+
+void MindMapViewer::wheelEvent(QWheelEvent* event){
+    setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+    double scaleFactor = 1.15;
+    if (event->angleDelta().y() > 0) {
+        scale(scaleFactor, scaleFactor);
+    } else {
+        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+    }
+    event->accept();
+}
