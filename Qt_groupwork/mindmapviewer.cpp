@@ -86,7 +86,6 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             return;
         }
         else if(state =="drag"){
-            centerAnchor = mapToScene(event->pos()) - event->pos() + QPointF(width() / 2, height() / 2);
             tmp_pos = event->pos();
             m_panning = true;
             setCursor(Qt::ClosedHandCursor);
@@ -97,9 +96,12 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
 
 void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
     if(state =="drag"&&m_panning){
-        QPointF delta = event->pos() - tmp_pos;
-        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-        centerOn(centerAnchor - delta);
+        QPointF delta = event->pos()- tmp_pos;
+        int w = viewport()->rect().width();
+        int h = viewport()->rect().height();
+        QPoint newCenter(w / 2. - delta.x()+0.5,  h / 2. - delta.y()+0.5);
+        centerOn(mapToScene(newCenter));
+        tmp_pos = event->pos();
     }
     event->accept();
 }
@@ -114,11 +116,8 @@ void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
 
 void MindMapViewer::wheelEvent(QWheelEvent* event){
     setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-    double scaleFactor = 1.15;
-    if (event->angleDelta().y() > 0) {
-        scale(scaleFactor, scaleFactor);
-    } else {
-        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-    }
+    int wheelValue = event->angleDelta().y();
+    double ratio = (double)wheelValue / (double)1200 + 1;
+    this->scale(ratio, ratio);
     event->accept();
 }
