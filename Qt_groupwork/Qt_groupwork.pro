@@ -12,14 +12,12 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mindmapviewer.cpp \
-    savefile.cpp \
-    setting.cpp
+    savefile.cpp
 
 HEADERS += \
     mainwindow.h \
     mindmapviewer.h \
-    savefile.h \
-    setting.h
+    savefile.h
 
 FORMS += \
     mainwindow.ui

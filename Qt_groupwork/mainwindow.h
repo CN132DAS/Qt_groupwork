@@ -19,7 +19,6 @@
 #include <QToolBar>
 #include "mindmapviewer.h"
 #include "savefile.h"
-#include "setting.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -33,7 +32,6 @@ class MainWindow : public QMainWindow
 private:
     SaveFile* save_SF;
     MindMapViewer* viewer;
-    Setting s;
 
     QMenuBar* menuBar;
 
@@ -58,17 +56,18 @@ private:
     QPushButton* addFile_PB;
     QPushButton* drag_PB;
 
-    void resizeEvent(QResizeEvent* event) override;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void close_file();
+    void unfreeze(bool unfreeze);
 public slots:
-    void newFile_clicked();
+    void get_newFile_name();
     void only_toggle_addText_PB(bool checked);
     void only_toggle_addPic_PB(bool checked);
     void only_toggle_addFile_PB(bool checked);
@@ -76,8 +75,9 @@ public slots:
     void set_text_checked();
     void set_pic_checked();
     void set_file_checked();
+    void load();
 signals:
-    void create_save(QString saveName_);
+    void unfreeze_state_changed(bool unfreeze);
 private:
     Ui::MainWindow *ui;
 };

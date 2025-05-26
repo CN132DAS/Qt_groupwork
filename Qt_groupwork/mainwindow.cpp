@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setMenuBar(menuBar);
     int menuBarH = menuBar->height();
 
+    save_SF = new SaveFile("",this);
+
     toolBar = new QToolBar(this);
     toolBar->setOrientation(Qt::Orientation::Vertical);
     toolBar->setMovable(false);
@@ -29,12 +31,10 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->move(0,menuBarH);
     toolBar->resize(100,h-menuBarH);
 
-    viewer = new MindMapViewer(this);
+    viewer = new MindMapViewer(this,save_SF);
     viewer->move(100,menuBarH);
     viewer->resize(w-100,h-menuBarH);
     viewer->setEnabled(false);
-
-    save_SF = new SaveFile("",this);
 
     {//第一个Qmenu及相关按钮的初始化
         fileOp = new QMenu(QStringLiteral("文件(&F)"),this);
@@ -77,11 +77,16 @@ MainWindow::MainWindow(QWidget *parent)
         close_A->setEnabled(false);
 
         connect(newFile_A,&QAction::triggered,
-                this,&MainWindow::newFile_clicked);
-        connect(this,&MainWindow::create_save,
-                save_SF,&SaveFile::create_save);
-        connect(save_SF,&SaveFile::init_done,
-                viewer,&MindMapViewer::init);
+                this,&MainWindow::get_newFile_name);
+        connect(save_SF,&SaveFile::save_created,
+                viewer,&MindMapViewer::set_saveFile);
+        connect(openFile_A,&QAction::triggered,
+                this,&MainWindow::load);
+        connect(save_A,&QAction::triggered,
+                save_SF,&SaveFile::save);
+        connect(close_A,&QAction::triggered,
+                this,&MainWindow::close_file);
+
     }
 
     {//第二个Qmenu及相关按钮的初始化
@@ -187,7 +192,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::newFile_clicked(){
+void MainWindow::get_newFile_name(){
     bool ok{};
     QString saveName;
     while(1){
@@ -204,23 +209,30 @@ void MainWindow::newFile_clicked(){
             break;
         }
     }
+    viewer->clear();
+    save_SF->create_save(saveName);
+    this->unfreeze(true);
+}
 
-    {
-        close_A->setEnabled(true);
-        undo_A->setEnabled(true);
-        redo_A->setEnabled(true);
-        save_A->setEnabled(true);
-        saveAs_A->setEnabled(true);
-        addText_A->setEnabled(true);
-        addPic_A->setEnabled(true);
-        addFile_A->setEnabled(true);
-        addText_PB->setEnabled(true);
-        addPic_PB->setEnabled(true);
-        addFile_PB->setEnabled(true);
-        drag_PB->setEnabled(true);
-    }
-    save_SF = new SaveFile;
-    emit create_save(saveName);
+void MainWindow::load(){
+    QString dir = QFileDialog::getOpenFileName(this,"选择存档",QString(),"文件 (*.dat)");
+    viewer->load(dir);
+    unfreeze(true);
+}
+
+void MainWindow::unfreeze(bool unfreeze){
+    close_A->setEnabled(unfreeze);
+    undo_A->setEnabled(unfreeze);
+    redo_A->setEnabled(unfreeze);
+    save_A->setEnabled(unfreeze);
+    saveAs_A->setEnabled(unfreeze);
+    addText_A->setEnabled(unfreeze);
+    addPic_A->setEnabled(unfreeze);
+    addFile_A->setEnabled(unfreeze);
+    addText_PB->setEnabled(unfreeze);
+    addPic_PB->setEnabled(unfreeze);
+    addFile_PB->setEnabled(unfreeze);
+    drag_PB->setEnabled(unfreeze);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event){
@@ -239,7 +251,7 @@ void MainWindow::only_toggle_addText_PB(bool checked){
         viewer->set_state("addText");
     }
     else
-    viewer->set_state("");
+        viewer->set_state("");
 }
 
 void MainWindow::only_toggle_addFile_PB(bool checked){
@@ -250,7 +262,7 @@ void MainWindow::only_toggle_addFile_PB(bool checked){
         viewer->set_state("addFile");
     }
     else
-    viewer->set_state("");
+        viewer->set_state("");
 }
 
 void MainWindow::only_toggle_addPic_PB(bool checked){
@@ -261,8 +273,9 @@ void MainWindow::only_toggle_addPic_PB(bool checked){
         viewer->set_state("addPic");
     }
     else
-    viewer->set_state("");
+        viewer->set_state("");
 }
+
 void MainWindow::only_toggle_drag_PB(bool checked){
     if(checked){
         addText_PB->setChecked(false);
@@ -284,6 +297,17 @@ void MainWindow::set_pic_checked(){
 
 void MainWindow::set_file_checked(){
     addFile_PB->setChecked(true);
+}
+
+void MainWindow::close_file(){
+    delete save_SF;
+    addText_PB->setChecked(false);
+    addPic_PB->setChecked(false);
+    addFile_PB->setChecked(false);
+    drag_PB->setChecked(false);
+    save_SF = new SaveFile("",this);
+    unfreeze(false);
+    viewer->disable();
 }
 
 void MainWindow::mousePressEvent(QMouseEvent* event){

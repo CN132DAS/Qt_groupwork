@@ -2,11 +2,18 @@
 #define SAVEFILE_H
 
 #include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsScene>
 #include <QObject>
+#include <QPoint>
 #include <QString>
+#include <QTextStream>
 #include <QVarLengthArray>
 #include <QVector>
-#include <QPoint>
+
+extern QString savePath;
 
 struct Pic{
     QString name;
@@ -19,7 +26,6 @@ class SaveFile : public QObject   //存档文件结构
     Q_OBJECT;
 private:
     QString saveName;
-
     int picNum;
     QVarLengthArray<Pic> pic;
 
@@ -28,12 +34,14 @@ private:
 public:
     explicit SaveFile(QString saveName_="",QObject *parent = nullptr);
     void add_pic(QString picName,QPoint mousePos);
+    void load(QString dir,QGraphicsScene* scene);
     int get_picNum();
     QString get_saveName();
 public slots:
     void create_save(QString saveName_);
+    void save();
 signals:
-    void init_done(SaveFile* save);
+    void save_created(SaveFile* save);
     friend class MainWindow;
 };
 

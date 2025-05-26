@@ -1,39 +1,56 @@
 #include "mindmapviewer.h"
 
-MindMapViewer::MindMapViewer(QWidget* parent_):QGraphicsView(parent_),scene(nullptr),m_panning(false){
+MindMapViewer::MindMapViewer(QWidget* parent_,SaveFile* save):
+    QGraphicsView(parent_),scene(nullptr),save_SF(save),m_panning(false){
     parent = parent_;
     scene = new QGraphicsScene(this);
     scene->setSceneRect(-1e6,-1e6,2e6,2e6);
     scene->addText("新建或打开文件以继续");
     this->setScene(scene);
-    setDragMode(QGraphicsView::DragMode::NoDrag);
-    setInteractive(false);
-    setEnabled(false);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    this->setDragMode(QGraphicsView::DragMode::NoDrag);
+    this->setInteractive(false);
+    this->setEnabled(false);
+    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 bool MindMapViewer::is_panning(){
     return m_panning;
 }
 
-void MindMapViewer::init(SaveFile* save){
-    save_SF = save;
+void MindMapViewer::clear(){
     scene->clear();
     this->update();
+}
+
+void MindMapViewer::set_saveFile(SaveFile* save){
+    save_SF = save;
     this->setEnabled(true);
+}
+
+void MindMapViewer::disable(){
+    scene->clear();
+    scene->addText("新建或打开文件以继续");
+    this->setInteractive(false);
+    this->setEnabled(false);
+    this->update();
 }
 
 void MindMapViewer::set_drag_mode(bool checked){
     if(checked)
-        setDragMode(QGraphicsView::ScrollHandDrag);
+        this->setDragMode(QGraphicsView::ScrollHandDrag);
     else
-        setDragMode(QGraphicsView::DragMode::NoDrag);
-    qDebug()<<"current drag mode:"<<dragMode();
+        this->setDragMode(QGraphicsView::DragMode::NoDrag);
 }
 
 void MindMapViewer::set_state(QString str){
     state = str;
+}
+
+void MindMapViewer::load(QString dir){
+    save_SF->load(dir,scene);
+    this->setEnabled(true);
+    this->update();
 }
 
 void MindMapViewer::mousePressEvent(QMouseEvent* event){
@@ -44,7 +61,7 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             return;
         }
         else if (state == "addPic"){
-            QString dir = QFileDialog::getOpenFileName(this,"选择图片",QString(), "Images (*.png *.xpm *.jpg)");
+            QString dir = QFileDialog::getOpenFileName(this,"选择图片",QString(), "图像 (*.png *.xpm *.jpg)");
             if(dir!=""){
                 QFileInfo tmp(dir);
                 QString picName = "Pic_"+QString::number(save_SF->get_picNum()+1)+"."+tmp.suffix();

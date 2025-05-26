@@ -24,15 +24,18 @@ private:
     SaveFile* save_SF;
     bool m_panning;
 public:
-    MindMapViewer(QWidget* parent= nullptr);
+    MindMapViewer(QWidget* parent= nullptr,SaveFile* save = nullptr);
+    void disable();
     void set_state(QString str);
+    void load(QString dir);
+    void clear();
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     bool is_panning();
 public slots:
-    void init(SaveFile* save);
+    void set_saveFile(SaveFile* save);
     void set_drag_mode(bool checked);
 };
 
