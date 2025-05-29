@@ -58,18 +58,28 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
         return;
     if(event->button() == Qt::LeftButton){
         if(state == "addText"){
-            return;
+            QString textName = "Text_"+QString::number((save_SF->get_textNum()+1));
+            EditableText* text = new EditableText(textName,event->pos());
+            save_SF->add_text(text);
+            scene->addItem(text);
+            QPoint scene_pos = mapToScene(event->pos()).toPoint();
+            QPoint delta = text->get_delta();
+            scene_pos -= delta;
+            text->setPos(scene_pos);
+            scene->update();
         }
         else if (state == "addPic"){
             QString dir = QFileDialog::getOpenFileName(this,"选择图片",QString(), "图像 (*.png *.xpm *.jpg)");
             if(dir!=""){
                 QFileInfo tmp(dir);
                 QString picName = "Pic_"+QString::number(save_SF->get_picNum()+1)+"."+tmp.suffix();
-                QString targetPath = savePath+"/"+save_SF->get_saveName()+"/"+picName;
+                QString targetPath = get_filePath(picName);
                 QFile::copy(dir,targetPath);
-                qDebug()<<"going to add pic "<<picName<<" in "<<targetPath;
+                qDebug()<<"going to add pic "<<picName;
+                qDebug()<<" in "<<targetPath;
                 QPoint mousePos = event->position().toPoint();
-                save_SF->add_pic(picName,mousePos);
+                Pic* pic_ = new Pic(picName,get_filePath(picName),mousePos);
+                save_SF->add_pic(pic_);
                 QPixmap pic_pixmap(targetPath);
                 int w = pic_pixmap.width();
                 int h = pic_pixmap.height();
@@ -83,7 +93,28 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             }
         }
         if(state == "addFile"){
-            return;
+            QString dir = QFileDialog::getOpenFileName(this,"选择文件",QString());
+            if(dir!=""){
+                QFileInfo tmp(dir);
+                QString fileName = tmp.fileName();
+                QString targetPath = get_filePath(fileName);
+                if(QDir(targetPath).exists(targetPath)){
+                    QMessageBox::warning(this,"文件名重复","已有同名文件，请修改文件名！");
+                    return;
+                }
+                QFile::copy(dir,targetPath);
+                qDebug()<<"going to add file "<<fileName;
+                qDebug()<<" in "<<targetPath;
+                QPoint mousePos = event->position().toPoint();
+                FileContent* file = new FileContent(fileName,mousePos);
+                save_SF->add_file(file);
+                scene->addItem(file);
+                QPoint scene_pos = mapToScene(event->pos()).toPoint();
+                QPoint delta = file->get_delta();
+                scene_pos -= delta;
+                file->setPos(scene_pos);
+                scene->update();
+            }
         }
         else if(state =="drag"){
             tmp_pos = event->pos();

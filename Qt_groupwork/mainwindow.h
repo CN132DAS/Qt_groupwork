@@ -20,6 +20,8 @@
 #include "mindmapviewer.h"
 #include "savefile.h"
 
+extern QString saveName_,savePath_;
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;

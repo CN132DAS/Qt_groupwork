@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
         saveAs_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_A));
         close_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_W));
 
-        QIcon newFile_QI (":/assets/new-file.svg");
+        QIcon newFile_QI(":/assets/new-file.svg");
         QIcon openFile_QI(":/assets/file.svg");
         QIcon save_QI(":/assets/save.svg");
         QIcon saveAs_QI(":/assets/save-as.svg");
@@ -197,27 +197,29 @@ void MainWindow::get_newFile_name(){
     QString saveName;
     while(1){
         saveName = QInputDialog::getText(this,"新建文件","存档名",QLineEdit::Normal,QString("新建存档"),&ok);
-        extern QString savePath;
         if(!ok)
             return;
-        if(QDir(savePath+"/"+saveName).exists()){
+        if(QDir(savePath_+"/"+saveName).exists()){
             QMessageBox::warning(this,"存档已存在","存档已存在\n请更换存档名");
             ok = false;
         }
         if(ok&&!saveName.isEmpty()){
-            QDir(savePath+"/"+saveName).mkdir(savePath+"/"+saveName);
+            QDir(savePath_+"/"+saveName).mkdir(savePath_+"/"+saveName);
+            saveName_ = saveName;
             break;
         }
     }
     viewer->clear();
-    save_SF->create_save(saveName);
+    save_SF->create_save(saveName_);
     this->unfreeze(true);
 }
 
 void MainWindow::load(){
     QString dir = QFileDialog::getOpenFileName(this,"选择存档",QString(),"文件 (*.dat)");
-    viewer->load(dir);
-    unfreeze(true);
+    if(dir!=""){
+        viewer->load(dir);
+        unfreeze(true);
+    }
 }
 
 void MainWindow::unfreeze(bool unfreeze){
@@ -301,10 +303,7 @@ void MainWindow::set_file_checked(){
 
 void MainWindow::close_file(){
     delete save_SF;
-    addText_PB->setChecked(false);
-    addPic_PB->setChecked(false);
-    addFile_PB->setChecked(false);
-    drag_PB->setChecked(false);
+    saveName_ = "";
     save_SF = new SaveFile("",this);
     unfreeze(false);
     viewer->disable();

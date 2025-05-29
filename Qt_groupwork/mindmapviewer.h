@@ -6,12 +6,13 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsView>
 #include <QMouseEvent>
+#include <QMessageBox>
 #include <QPixmap>
 #include <QScrollBar>
 #include <QWidget>
+#include "editabletext.h"
+#include "func_.h"
 #include "savefile.h"
-
-extern QString savePath;
 
 class MindMapViewer : public QGraphicsView
 {

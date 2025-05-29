@@ -12,13 +12,19 @@
 #include <QTextStream>
 #include <QVarLengthArray>
 #include <QVector>
+#include "editabletext.h"
+#include "filecontent.h"
+#include "func_.h"
 
-extern QString savePath;
+extern QString savePath_;
+extern QString saveName_;
+
 
 struct Pic{
     QString name;
+    QString path;
     QPoint pos;
-    Pic(QString name_,QPoint pos_);
+    Pic(QString name_,QString path_,QPoint pos_);
 };
 
 class SaveFile : public QObject   //存档文件结构
@@ -27,16 +33,19 @@ class SaveFile : public QObject   //存档文件结构
 private:
     QString saveName;
     int picNum;
-    QVarLengthArray<Pic> pic;
-
-private:
-    void resize();
+    QVarLengthArray<Pic*> pic;
+    int fileNum;
+    QVarLengthArray<FileContent*> file;
+    int textNum;
+    QVarLengthArray<EditableText*> text;
 public:
     explicit SaveFile(QString saveName_="",QObject *parent = nullptr);
-    void add_pic(QString picName,QPoint mousePos);
+    void add_pic(Pic* pic_);
+    void add_file(FileContent* file_);
+    void add_text(EditableText* text_);
     void load(QString dir,QGraphicsScene* scene);
     int get_picNum();
-    QString get_saveName();
+    int get_textNum();
 public slots:
     void create_save(QString saveName_);
     void save();

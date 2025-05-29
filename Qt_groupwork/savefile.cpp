@@ -1,16 +1,15 @@
 #include "savefile.h"
 #include "qgraphicsitem.h"
 
-Pic::Pic(QString name_,QPoint pos_){
-    name = name_;
-    pos = pos_;
-}
+Pic::Pic(QString name_,QString path_,QPoint pos_)
+    :name(name_),path(path_),pos(pos_){}
 
 SaveFile::SaveFile(QString saveName_,QObject *parent)
     : QObject{parent},saveName(saveName_),picNum(0){}
 
-void SaveFile:: create_save(QString saveName_){
-    saveName = saveName_;
+void SaveFile:: create_save(QString saveName__){
+    saveName = saveName__;
+    saveName_ = saveName;
     qDebug()<<"save created successfully!";
     emit save_created(this);
 }
@@ -19,26 +18,39 @@ int SaveFile:: get_picNum(){
     return picNum;
 }
 
-void SaveFile::add_pic(QString picName,QPoint mousePos){
-    pic.push_back(Pic(picName,mousePos));
-    qDebug()<<"Pic added with name:"<<picName;
-    qDebug()<<"and pos:"<<mousePos;
+int SaveFile:: get_textNum(){
+    return textNum;
+}
+
+void SaveFile::add_pic(Pic* pic_){
+    pic.push_back(pic_);
     picNum++;
 }
 
-QString SaveFile::get_saveName(){
-    return saveName;
+void SaveFile::add_file(FileContent* file_){
+    file.push_back(file_);
+    fileNum++;
+}
+
+void SaveFile::add_text(EditableText* text_){
+    text.push_back(text_);
+    textNum++;
 }
 
 void SaveFile::save(){
-    QFile saveFile(savePath+"/"+saveName+"/save.dat");
-    qDebug()<<(savePath+"/"+saveName+"/save.dat");
+    QFile saveFile(get_filePath("save.dat"));
     saveFile.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate);
     QTextStream in(&saveFile);
     in<<picNum<<Qt::endl;
     if(picNum!=0){
         for(auto it = pic.begin();it!=pic.end();it++){
-            in<<it->pos.x()<<" "<<it->pos.y()<<" "<<it->name;
+            in<<(*it)->pos.x()<<" "<<(*it)->pos.y()<<" "<<(*it)->name<<Qt::endl;
+        }
+    }
+    in<<fileNum<<Qt::endl;
+    if(fileNum!=0){
+        for(auto it = file.begin();it!=file.end();it++){
+            (*it)->save(in);
         }
     }
 }
@@ -52,20 +64,28 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
     QDir dir_(dir);
     dir_.cdUp();
     saveName = dir_.dirName();
-    qDebug()<<saveName;
-    qDebug()<<savePath;
+    saveName_ = saveName;
     for(int i = 0;i<picNum;i++){
         int x,y;
         out>>x>>y;
         QString name;
         out>>name;
-        qDebug()<<x<<" "<<y<<" "<<name;
-        qDebug()<<savePath+"/"+saveName+"/"+name;
-        pic.push_back(Pic(name,QPoint(x,y)));
-        QPixmap pic_pixmap(savePath+"/"+saveName+"/"+name);
+        pic.push_back(new Pic(name,get_filePath(name),QPoint(x,y)));
+        QPixmap pic_pixmap(get_filePath(name));
         QGraphicsPixmapItem* pic= new QGraphicsPixmapItem(pic_pixmap);
         scene->addItem(pic);
         pic->setPos(QPoint(x,y));
+    }
+    out>>fileNum;
+    for(int i = 0;i<fileNum;i++){
+        int x,y;
+        out>>x>>y;
+        QString name;
+        out>>name;
+        FileContent* file_ = new FileContent(name,QPoint(x,y));
+        file.push_back(file_);
+        scene->addItem(file_);
+        file_->setPos(QPoint(x,y));
     }
 }
 
