@@ -1,40 +1,66 @@
 #include "savefile.h"
-#include "qgraphicsitem.h"
+#include "func_.h"
 
-Pic::Pic(QString name_,QString path_,QPoint pos_)
-    :name(name_),path(path_),pos(pos_){}
+SaveFile::SaveFile(QString saveName_,QGraphicsScene* scene_,QObject *parent)
+    : QObject{parent},saveName(saveName_),picNum(0),fileNum(0),textNum(0),scene(scene_){}
 
-SaveFile::SaveFile(QString saveName_,QObject *parent)
-    : QObject{parent},saveName(saveName_),picNum(0){}
+//
 
-void SaveFile:: create_save(QString saveName__){
-    saveName = saveName__;
-    saveName_ = saveName;
-    qDebug()<<"save created successfully!";
-    emit save_created(this);
+void SaveFile::new_save(){
+    saveName = _saveName_;
+    this->clear();
 }
 
-int SaveFile:: get_picNum(){
-    return picNum;
+void SaveFile::clear(){
+    this->pic.clear();
+    this->file.clear();
+    this->text.clear();
+    this->picNum = 0;
+    this->fileNum = 0;
+    this->textNum = 0;
 }
 
-int SaveFile:: get_textNum(){
-    return textNum;
+void SaveFile::set_scene(QGraphicsScene* scene_){
+    scene = scene_;
 }
 
-void SaveFile::add_pic(Pic* pic_){
-    pic.push_back(pic_);
+QPair<QPoint,Pic*> SaveFile::add_pic(QString dir,QPoint pos){
     picNum++;
+    QFileInfo tmp(dir);
+    QString picName = "Pic_"+QString::number(picNum)+"."+tmp.suffix();
+    QString targetPath = get_filePath(picName);
+    QFile::copy(dir,targetPath);
+    Pic* pic_ = new Pic(picName,pos,picNum);
+    pic.push_back(pic_);
+    QPixmap pic_pixmap(targetPath);
+    int w = pic_pixmap.width();
+    int h = pic_pixmap.height();
+    QPoint delta(w/2,h/2);
+    return qMakePair(delta,pic_);
 }
 
-void SaveFile::add_file(FileContent* file_){
-    file.push_back(file_);
+QPair<QPoint,FileContent*> SaveFile::add_file(QString dir,QPoint pos){
+    QFileInfo tmp(dir);
+    QString fileName = tmp.fileName();
+    QString targetPath = get_filePath(fileName);
+    if(QDir(targetPath).exists(targetPath)){
+        QMessageBox::warning(nullptr,"文件名重复","已有同名文件，请修改文件名！");
+        return qMakePair(QPoint(),nullptr);
+    }
+    QFile::copy(dir,targetPath);
     fileNum++;
+    FileContent* file_ = new FileContent(fileName,pos,fileNum);
+    file.push_back(file_);
+    QPoint delta = file_->get_delta();
+    return qMakePair(delta,file_);
 }
 
-void SaveFile::add_text(EditableText* text_){
+QPair<QPoint,EditableText*> SaveFile::add_text(QPoint pos){
+    QString textName = "Text_"+QString::number(textNum+1);
+    EditableText* text_ = new EditableText(textName,pos);
     text.push_back(text_);
-    textNum++;
+    QPoint delta = text_->get_delta();
+    return qMakePair(delta,text_);
 }
 
 void SaveFile::save(){
@@ -44,7 +70,7 @@ void SaveFile::save(){
     in<<picNum<<Qt::endl;
     if(picNum!=0){
         for(auto it = pic.begin();it!=pic.end();it++){
-            in<<(*it)->pos.x()<<" "<<(*it)->pos.y()<<" "<<(*it)->name<<Qt::endl;
+            (*it)->save(in);
         }
     }
     in<<fileNum<<Qt::endl;
@@ -53,6 +79,7 @@ void SaveFile::save(){
             (*it)->save(in);
         }
     }
+    saveFile.close();
 }
 
 void SaveFile::load(QString dir,QGraphicsScene* scene){
@@ -64,28 +91,32 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
     QDir dir_(dir);
     dir_.cdUp();
     saveName = dir_.dirName();
-    saveName_ = saveName;
+    _saveName_ = saveName;
     for(int i = 0;i<picNum;i++){
-        int x,y;
-        out>>x>>y;
+        int ID;
+        out>>ID;
         QString name;
         out>>name;
-        pic.push_back(new Pic(name,get_filePath(name),QPoint(x,y)));
-        QPixmap pic_pixmap(get_filePath(name));
-        QGraphicsPixmapItem* pic= new QGraphicsPixmapItem(pic_pixmap);
-        scene->addItem(pic);
-        pic->setPos(QPoint(x,y));
+        int x,y;
+        out>>x>>y;
+        Pic* pic_ = new Pic(name,QPoint(x,y),ID);
+        pic.push_back(pic_);
+        scene->addItem(pic_);
+        pic_->setPos(QPoint(x,y));
     }
     out>>fileNum;
     for(int i = 0;i<fileNum;i++){
-        int x,y;
-        out>>x>>y;
+        int ID;
+        out>>ID;
         QString name;
         out>>name;
-        FileContent* file_ = new FileContent(name,QPoint(x,y));
+        int x,y;
+        out>>x>>y;
+        FileContent* file_ = new FileContent(name,QPoint(x,y),ID);
         file.push_back(file_);
         scene->addItem(file_);
         file_->setPos(QPoint(x,y));
     }
 }
 
+//槽函数

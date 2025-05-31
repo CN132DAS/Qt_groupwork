@@ -20,7 +20,7 @@
 #include "mindmapviewer.h"
 #include "savefile.h"
 
-extern QString saveName_,savePath_;
+extern QString _saveName_,_savePath_,_state_;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -38,8 +38,8 @@ private:
     QMenuBar* menuBar;
 
     QMenu* fileOp;
-    QAction* newFile_A;
-    QAction* openFile_A;
+    QAction* newSave_A;
+    QAction* openSave_A;
     QAction* save_A;
     QAction* saveAs_A;
     QAction* close_A;
@@ -47,9 +47,6 @@ private:
     QMenu* edit;
     QAction* undo_A;
     QAction* redo_A;
-    QAction* addText_A;
-    QAction* addPic_A;
-    QAction* addFile_A;
 
     QToolBar* toolBar;
 
@@ -61,26 +58,27 @@ private:
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void unfreeze(bool unfreeze);
+public slots:
+    void load_save();
+    void close_save();
+    void toggle_addText_PB(bool checked);
+    void toggle_addPic_PB(bool checked);
+    void toggle_addFile_PB(bool checked);
+    void toggle_drag_PB(bool checked);
+    void only_toggle_one_button();
+    void new_save();
+    void save();
+signals:
+    void state_changed();
+    void unfreeze_state_changed(bool unfreeze);
+private:
+    Ui::MainWindow *ui;
+public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
-    void close_file();
-    void unfreeze(bool unfreeze);
-public slots:
-    void get_newFile_name();
-    void only_toggle_addText_PB(bool checked);
-    void only_toggle_addPic_PB(bool checked);
-    void only_toggle_addFile_PB(bool checked);
-    void only_toggle_drag_PB(bool checked);
-    void set_text_checked();
-    void set_pic_checked();
-    void set_file_checked();
-    void load();
-signals:
-    void unfreeze_state_changed(bool unfreeze);
-private:
-    Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H

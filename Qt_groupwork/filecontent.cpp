@@ -1,9 +1,9 @@
 #include "filecontent.h"
 
-FileContent::FileContent(QString name_,QPoint pos_)
-    :name(name_),path(get_filePath(name_)),pos(pos_){
-    qDebug()<<"added a file named:"<<name;
-    qDebug()<<"in:"<<path;
+QIcon FileContent::fileIcon(":/assets/file.svg");
+
+FileContent::FileContent(QString name_,QPoint pos_,int ID_)
+    :ID(ID_),name(name_),pos(pos_){
     m_spacing = 0;
     m_iconSize = QSize(32, 32);
     QFontMetrics fm(QFont("times",10));
@@ -20,7 +20,7 @@ QPoint FileContent::get_delta(){
 }
 
 void FileContent::save(QTextStream& in){
-    in<<pos.x()<<" "<<pos.y()<<" "<<name<<Qt::endl;
+    in<<this->ID<<" "<<this->name<<" "<<this->pos.x()<<" "<<this->pos.y()<<" "<<Qt::endl;
 }
 
 QRectF FileContent::boundingRect() const {

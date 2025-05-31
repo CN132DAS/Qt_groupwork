@@ -6,7 +6,9 @@
 #include <QFile>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
+#include <QMessageBox>
 #include <QObject>
+#include <QPair>
 #include <QPoint>
 #include <QString>
 #include <QTextStream>
@@ -14,18 +16,10 @@
 #include <QVector>
 #include "editabletext.h"
 #include "filecontent.h"
-#include "func_.h"
+#include "pic.h"
 
-extern QString savePath_;
-extern QString saveName_;
-
-
-struct Pic{
-    QString name;
-    QString path;
-    QPoint pos;
-    Pic(QString name_,QString path_,QPoint pos_);
-};
+extern QString _savePath_;
+extern QString _saveName_;
 
 class SaveFile : public QObject   //存档文件结构
 {
@@ -38,19 +32,20 @@ private:
     QVarLengthArray<FileContent*> file;
     int textNum;
     QVarLengthArray<EditableText*> text;
+    QGraphicsScene* scene;
 public:
-    explicit SaveFile(QString saveName_="",QObject *parent = nullptr);
-    void add_pic(Pic* pic_);
-    void add_file(FileContent* file_);
+    explicit SaveFile(QString saveName_="",QGraphicsScene* scene_ = nullptr,QObject *parent = nullptr);
     void add_text(EditableText* text_);
     void load(QString dir,QGraphicsScene* scene);
-    int get_picNum();
-    int get_textNum();
-public slots:
-    void create_save(QString saveName_);
+    void new_save();
+    void clear();
+    void set_scene(QGraphicsScene* scene_);
+    QPair<QPoint,FileContent*> add_file(QString dir,QPoint pos);
+    QPair<QPoint,Pic*> add_pic(QString dir,QPoint pos);
+    QPair<QPoint,EditableText*>add_text(QPoint pos);
     void save();
+public slots:
 signals:
-    void save_created(SaveFile* save);
     friend class MainWindow;
 };
 

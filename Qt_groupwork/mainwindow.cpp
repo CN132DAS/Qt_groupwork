@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setMenuBar(menuBar);
     int menuBarH = menuBar->height();
 
-    save_SF = new SaveFile("",this);
+    save_SF = new SaveFile("",nullptr,this);
 
     toolBar = new QToolBar(this);
     toolBar->setOrientation(Qt::Orientation::Vertical);
@@ -39,33 +39,33 @@ MainWindow::MainWindow(QWidget *parent)
     {//第一个Qmenu及相关按钮的初始化
         fileOp = new QMenu(QStringLiteral("文件(&F)"),this);
 
-        newFile_A = new QAction(QStringLiteral("新建"),this);
-        openFile_A = new QAction(QStringLiteral("打开"),this);
+        newSave_A = new QAction(QStringLiteral("新建"),this);
+        openSave_A = new QAction(QStringLiteral("打开"),this);
         save_A = new QAction(QStringLiteral("保存"),this);
         saveAs_A = new QAction(QStringLiteral("另存为"),this);
         close_A = new QAction(QStringLiteral("关闭"),this);
 
-        newFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_N));
-        openFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_O));
+        newSave_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_N));
+        openSave_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_O));
         save_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_S));
         saveAs_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_A));
         close_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_W));
 
-        QIcon newFile_QI(":/assets/new-file.svg");
-        QIcon openFile_QI(":/assets/file.svg");
+        QIcon newSave_QI(":/assets/new-file.svg");
+        QIcon openSave_QI(":/assets/file.svg");
         QIcon save_QI(":/assets/save.svg");
         QIcon saveAs_QI(":/assets/save-as.svg");
         QIcon close_QI(":/assets/close.svg");
 
-        newFile_A->setIcon(newFile_QI);
-        openFile_A->setIcon(openFile_QI);
+        newSave_A->setIcon(newSave_QI);
+        openSave_A->setIcon(openSave_QI);
         save_A->setIcon(save_QI);
         saveAs_A->setIcon(saveAs_QI);
         close_A->setIcon(close_QI);
 
         menuBar->addMenu(fileOp);
-        fileOp->addAction(newFile_A);
-        fileOp->addAction(openFile_A);
+        fileOp->addAction(newSave_A);
+        fileOp->addAction(openSave_A);
         fileOp->addSeparator();
         fileOp->addAction(save_A);
         fileOp->addAction(saveAs_A);
@@ -76,16 +76,14 @@ MainWindow::MainWindow(QWidget *parent)
         saveAs_A->setEnabled(false);
         close_A->setEnabled(false);
 
-        connect(newFile_A,&QAction::triggered,
-                this,&MainWindow::get_newFile_name);
-        connect(save_SF,&SaveFile::save_created,
-                viewer,&MindMapViewer::set_saveFile);
-        connect(openFile_A,&QAction::triggered,
-                this,&MainWindow::load);
+        connect(newSave_A,&QAction::triggered,
+                this,&MainWindow::new_save);
+        connect(openSave_A,&QAction::triggered,
+                this,&MainWindow::load_save);
         connect(save_A,&QAction::triggered,
-                save_SF,&SaveFile::save);
+                this,&MainWindow::save);
         connect(close_A,&QAction::triggered,
-                this,&MainWindow::close_file);
+                this,&MainWindow::close_save);
 
     }
 
@@ -94,48 +92,21 @@ MainWindow::MainWindow(QWidget *parent)
 
         undo_A = new QAction(QStringLiteral("撤销"),this);
         redo_A = new QAction(QStringLiteral("重做"),this);
-        addText_A = new QAction(QStringLiteral("插入文字"),this);
-        addPic_A = new QAction(QStringLiteral("插入图片"),this);
-        addFile_A = new QAction(QStringLiteral("插入文件"),this);
 
         undo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Z));
         redo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Y));
-        addText_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_T));
-        addPic_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_P));
-        addFile_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_F));
 
         QIcon undo_QI(":/assets/undo.svg");
         QIcon redo_QI(":/assets/redo.svg");
-        QIcon addText_QI(":/assets/add-text.svg");
-        QIcon addPic_QI(":/assets/add-pic.svg");
-        QIcon addFile_QI(":/assets/add-file.svg");
 
         undo_A->setIcon(undo_QI);
         redo_A->setIcon(redo_QI);
-        addText_A->setIcon(addText_QI);
-        addPic_A->setIcon(addPic_QI);
-        addFile_A->setIcon(addFile_QI);
 
         menuBar->addMenu(edit);
         edit->addAction(undo_A);
         edit->addAction(redo_A);
-        edit->addSeparator();
-        edit->addAction(addText_A);
-        edit->addAction(addPic_A);
-        edit->addAction(addFile_A);
-
         undo_A->setEnabled(false);
         redo_A->setEnabled(false);
-        addText_A->setEnabled(false);
-        addPic_A->setEnabled(false);
-        addFile_A->setEnabled(false);
-
-        connect(addText_A,&QAction::triggered,
-                this,&MainWindow::set_text_checked);
-        connect(addPic_A,&QAction::triggered,
-                this,&MainWindow::set_pic_checked);
-        connect(addFile_A,&QAction::triggered,
-                this,&MainWindow::set_file_checked);
     }
 
     {//QToolBar中按钮的初始化
@@ -175,15 +146,15 @@ MainWindow::MainWindow(QWidget *parent)
         drag_PB->setEnabled(false);
 
         connect(addText_PB,&QAbstractButton::toggled,
-                this,&MainWindow::only_toggle_addText_PB);
+                this,&MainWindow::toggle_addText_PB);
         connect(addPic_PB,&QAbstractButton::toggled,
-                this,&MainWindow::only_toggle_addPic_PB);
+                this,&MainWindow::toggle_addPic_PB);
         connect(addFile_PB,&QAbstractButton::toggled,
-                this,&MainWindow::only_toggle_addFile_PB);
+                this,&MainWindow::toggle_addFile_PB);
         connect(drag_PB,&QAbstractButton::toggled,
-                this,&MainWindow::only_toggle_drag_PB);
-        connect(drag_PB,&QAbstractButton::toggled,
-                             viewer,&MindMapViewer::set_drag_mode);
+                this,&MainWindow::toggle_drag_PB);
+        connect(this,&MainWindow::state_changed,
+                this,&MainWindow::only_toggle_one_button);
     }
 }
 
@@ -192,122 +163,121 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::get_newFile_name(){
-    bool ok{};
-    QString saveName;
-    while(1){
-        saveName = QInputDialog::getText(this,"新建文件","存档名",QLineEdit::Normal,QString("新建存档"),&ok);
-        if(!ok)
-            return;
-        if(QDir(savePath_+"/"+saveName).exists()){
-            QMessageBox::warning(this,"存档已存在","存档已存在\n请更换存档名");
-            ok = false;
-        }
-        if(ok&&!saveName.isEmpty()){
-            QDir(savePath_+"/"+saveName).mkdir(savePath_+"/"+saveName);
-            saveName_ = saveName;
-            break;
-        }
-    }
-    viewer->clear();
-    save_SF->create_save(saveName_);
-    this->unfreeze(true);
-}
-
-void MainWindow::load(){
-    QString dir = QFileDialog::getOpenFileName(this,"选择存档",QString(),"文件 (*.dat)");
-    if(dir!=""){
-        viewer->load(dir);
-        unfreeze(true);
-    }
-}
-
 void MainWindow::unfreeze(bool unfreeze){
     close_A->setEnabled(unfreeze);
     undo_A->setEnabled(unfreeze);
     redo_A->setEnabled(unfreeze);
     save_A->setEnabled(unfreeze);
     saveAs_A->setEnabled(unfreeze);
-    addText_A->setEnabled(unfreeze);
-    addPic_A->setEnabled(unfreeze);
-    addFile_A->setEnabled(unfreeze);
     addText_PB->setEnabled(unfreeze);
     addPic_PB->setEnabled(unfreeze);
     addFile_PB->setEnabled(unfreeze);
     drag_PB->setEnabled(unfreeze);
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event){
-    int h_ = event->size().height();
-    int w_ = event->size().width();
-    int menuBarH = menuBar->height();
-    toolBar->resize(100,h_-menuBarH);
-    viewer->resize(w_-100,h_-menuBarH);
-}
+//槽函数
 
-void MainWindow::only_toggle_addText_PB(bool checked){
+void MainWindow::toggle_addText_PB(bool checked){
     if(checked){
-        addFile_PB->setChecked(false);
-        addPic_PB->setChecked(false);
-        drag_PB->setChecked(false);
-        viewer->set_state("addText");
+        _state_ = "addText";
+        emit state_changed();
     }
-    else
-        viewer->set_state("");
+    else if(_state_ == "addText"){
+        _state_ = "";
+        emit state_changed();
+    }
 }
 
-void MainWindow::only_toggle_addFile_PB(bool checked){
+void MainWindow::toggle_addPic_PB(bool checked){
     if(checked){
+        _state_ = "addPic";
+        emit state_changed();
+    }
+    else if(_state_ == "addPic"){
+        _state_ = "";
+        emit state_changed();
+    }
+}
+
+void MainWindow::toggle_addFile_PB(bool checked){
+    if(checked){
+        _state_ = "addFile";
+        emit state_changed();
+    }
+    else if(_state_ == "addFile"){
+        _state_ = "";
+        emit state_changed();
+    }
+}
+
+void MainWindow::toggle_drag_PB(bool checked){
+    if(checked){
+        _state_ = "drag";
+        emit state_changed();
+    }
+    else if(_state_ == "drag"){
+        _state_ = "";
+        emit state_changed();
+    }
+}
+
+void MainWindow::only_toggle_one_button(){
+    if(_state_!="addText")
         addText_PB->setChecked(false);
+    if(_state_!="addPic")
         addPic_PB->setChecked(false);
-        drag_PB->setChecked(false);
-        viewer->set_state("addFile");
-    }
-    else
-        viewer->set_state("");
-}
-
-void MainWindow::only_toggle_addPic_PB(bool checked){
-    if(checked){
-        addText_PB->setChecked(false);
+    if(_state_!="addFile")
         addFile_PB->setChecked(false);
+    if(_state_!="drag")
         drag_PB->setChecked(false);
-        viewer->set_state("addPic");
+}
+
+void MainWindow::new_save(){
+    bool ok{};
+    QString saveName;
+    while(1){
+        saveName = QInputDialog::getText(this,"新建文件","存档名",QLineEdit::Normal,QString("新建存档"),&ok);
+        if(!ok)
+            return;
+        if(QDir(_savePath_+"/"+saveName).exists()){
+            QMessageBox::warning(this,"存档已存在","存档已存在\n请更换存档名");
+            ok = false;
+        }
+        if(ok&&!saveName.isEmpty()){
+            QDir(_savePath_+"/"+saveName).mkdir(_savePath_+"/"+saveName);
+            _saveName_ = saveName;
+            break;
+        }
     }
-    else
-        viewer->set_state("");
+    viewer->new_save();
+    QString title = _saveName_ + "   -MindMap";
+    this->setWindowTitle(title);
+    this->unfreeze(true);
 }
 
-void MainWindow::only_toggle_drag_PB(bool checked){
-    if(checked){
-        addText_PB->setChecked(false);
-        addFile_PB->setChecked(false);
-        addPic_PB->setChecked(false);
-        viewer->set_state("drag");
+void MainWindow::close_save(){
+    _saveName_ = "";
+    this->unfreeze(false);
+    viewer->close_save();
+    this->setWindowTitle("MindMap");
+}
+
+void MainWindow::save(){
+    save_SF->save();
+}
+
+void MainWindow::load_save(){
+    QString dir = QFileDialog::getOpenFileName(this,"选择存档",QString(),"文件 (*.dat)");
+    if(dir!=""){
+        viewer->load(dir);
+        this->unfreeze(true);
+        QString title = _saveName_ + "   -MindMap";
+        this->setWindowTitle(title);
     }
-    else
-        viewer->set_state("");
 }
 
-void MainWindow::set_text_checked(){
-    addText_PB->setChecked(true);
-}
 
-void MainWindow::set_pic_checked(){
-    addPic_PB->setChecked(true);
-}
-
-void MainWindow::set_file_checked(){
-    addFile_PB->setChecked(true);
-}
-
-void MainWindow::close_file(){
-    delete save_SF;
-    saveName_ = "";
-    save_SF = new SaveFile("",this);
-    unfreeze(false);
-    viewer->disable();
-}
+//重写函数
 
 void MainWindow::mousePressEvent(QMouseEvent* event){
     QPoint tmp = event->pos();
@@ -337,3 +307,10 @@ void MainWindow::wheelEvent(QWheelEvent* event){
     event->accept();
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event){
+    int h_ = event->size().height();
+    int w_ = event->size().width();
+    int menuBarH = menuBar->height();
+    toolBar->resize(100,h_-menuBarH);
+    viewer->resize(w_-100,h_-menuBarH);
+}

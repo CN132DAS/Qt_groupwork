@@ -10,9 +10,9 @@
 #include <QPixmap>
 #include <QScrollBar>
 #include <QWidget>
-#include "editabletext.h"
-#include "func_.h"
 #include "savefile.h"
+
+extern QString _state_;
 
 class MindMapViewer : public QGraphicsView
 {
@@ -21,23 +21,24 @@ private:
     QPointF centerAnchor;
     QGraphicsScene* scene;
     QWidget* parent;
-    QString state;
     SaveFile* save_SF;
     bool m_panning;
 public:
+    // void disable();
+    // void clear();
+
     MindMapViewer(QWidget* parent= nullptr,SaveFile* save = nullptr);
-    void disable();
-    void set_state(QString str);
+    void new_save();
+    void close_save();
     void load(QString dir);
-    void clear();
+    bool is_panning();
+public slots:
+    // void set_drag_mode(bool checked);
+public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
-    bool is_panning();
-public slots:
-    void set_saveFile(SaveFile* save);
-    void set_drag_mode(bool checked);
 };
 
 

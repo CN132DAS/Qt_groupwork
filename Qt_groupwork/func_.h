@@ -2,7 +2,7 @@
 #define FUNC__H
 
 #include <QString>
-extern QString saveName_,savePath_;
+extern QString _saveName_,_savePath_;
 
 QString get_filePath(QString fileName_);
 #endif // FUNC__H

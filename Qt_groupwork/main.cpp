@@ -1,8 +1,8 @@
 #include <QDir>
 #include "mainwindow.h"
-QString savePath_ = "";
-QString saveName_ = "";
-QIcon fileIcon(":/assets/file.svg");
+QString _savePath_ = "";
+QString _saveName_ = "";
+QString _state_ = "";
 
 #include <QApplication>
 
@@ -24,9 +24,9 @@ void init()
     QDir current = QDir::current();
     current.cd("..");
     current.cd("..");
-    savePath_ = current.path()+"/save";
-    qDebug()<<"save path is: "<<savePath_;
+    _savePath_ = current.path()+"/save";
+    qDebug()<<"save path is: "<<_savePath_;
     qDebug()<<"is it right?";
-    if(!QDir(savePath_).exists())
-        QDir(savePath_).mkdir(savePath_);
+    if(!QDir(_savePath_).exists())
+        QDir(_savePath_).mkdir(_savePath_);
 }

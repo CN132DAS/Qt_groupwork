@@ -15,6 +15,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mindmapviewer.cpp \
+    pic.cpp \
     savefile.cpp
 
 HEADERS += \
@@ -23,6 +24,7 @@ HEADERS += \
     func_.h \
     mainwindow.h \
     mindmapviewer.h \
+    pic.h \
     savefile.h
 
 FORMS += \

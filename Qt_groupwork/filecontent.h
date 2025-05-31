@@ -9,23 +9,22 @@
 #include <QString>
 #include <QTextStream>
 #include <QWidget>
-#include "func_.h"
 
 
-extern QIcon fileIcon;
+
 
 class FileContent : public QGraphicsItem
 {
-    QString name;
-    QString path;
-    QPoint pos;
     int m_spacing,m_textWidth,m_totalWidth,m_totalHeight,m_margin;
+    int ID;//从1开始
+    QString name;
+    QPoint pos;
     QSize m_iconSize;
+    static QIcon fileIcon;
 public:
-    FileContent(QString name_,QPoint pos_);
+    FileContent(QString name_,QPoint pos_,int ID_);
     QPoint get_delta();
     void save(QTextStream& in);
-
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget = nullptr) override;    
 };
