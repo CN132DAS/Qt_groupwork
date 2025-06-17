@@ -24,13 +24,13 @@ void SaveFile::set_scene(QGraphicsScene* scene_){
     scene = scene_;
 }
 
-QPair<QPoint,Pic*> SaveFile::add_pic(QString dir,QPoint pos){
+QPair<QPoint,Pic*> SaveFile::add_pic(QString dir){
     picNum++;
     QFileInfo tmp(dir);
     QString picName = "Pic_"+QString::number(picNum)+"."+tmp.suffix();
     QString targetPath = get_filePath(picName);
     QFile::copy(dir,targetPath);
-    Pic* pic_ = new Pic(picName,pos,picNum);
+    Pic* pic_ = new Pic(picName,picNum);
     pic.push_back(pic_);
     QPixmap pic_pixmap(targetPath);
     int w = pic_pixmap.width();
@@ -39,7 +39,7 @@ QPair<QPoint,Pic*> SaveFile::add_pic(QString dir,QPoint pos){
     return qMakePair(delta,pic_);
 }
 
-QPair<QPoint,FileContent*> SaveFile::add_file(QString dir,QPoint pos){
+QPair<QPoint,FileContent*> SaveFile::add_file(QString dir){
     QFileInfo tmp(dir);
     QString fileName = tmp.fileName();
     QString targetPath = get_filePath(fileName);
@@ -49,15 +49,15 @@ QPair<QPoint,FileContent*> SaveFile::add_file(QString dir,QPoint pos){
     }
     QFile::copy(dir,targetPath);
     fileNum++;
-    FileContent* file_ = new FileContent(fileName,pos,fileNum);
+    FileContent* file_ = new FileContent(fileName,fileNum);
     file.push_back(file_);
     QPoint delta = file_->get_delta();
     return qMakePair(delta,file_);
 }
 
-QPair<QPoint,EditableText*> SaveFile::add_text(QPoint pos){
+QPair<QPoint,EditableText*> SaveFile::add_text(){
     QString textName = "Text_"+QString::number(textNum+1);
-    EditableText* text_ = new EditableText(textName,pos);
+    EditableText* text_ = new EditableText(textName);
     text.push_back(text_);
     QPoint delta = text_->get_delta();
     return qMakePair(delta,text_);
@@ -97,12 +97,12 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         out>>ID;
         QString name;
         out>>name;
-        int x,y;
+        qreal x,y;
         out>>x>>y;
-        Pic* pic_ = new Pic(name,QPoint(x,y),ID);
+        Pic* pic_ = new Pic(name,ID);
         pic.push_back(pic_);
         scene->addItem(pic_);
-        pic_->setPos(QPoint(x,y));
+        pic_->setPos(QPointF(x,y));
     }
     out>>fileNum;
     for(int i = 0;i<fileNum;i++){
@@ -110,12 +110,12 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         out>>ID;
         QString name;
         out>>name;
-        int x,y;
+        qreal x,y;
         out>>x>>y;
-        FileContent* file_ = new FileContent(name,QPoint(x,y),ID);
+        FileContent* file_ = new FileContent(name,ID);
         file.push_back(file_);
         scene->addItem(file_);
-        file_->setPos(QPoint(x,y));
+        file_->setPos(QPointF(x,y));
     }
 }
 

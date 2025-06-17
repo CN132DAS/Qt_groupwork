@@ -6,10 +6,9 @@
 class Pic : public QGraphicsPixmapItem
 {
     QString name;
-    QPoint pos;
     int ID;//从1开始
 public:
-    Pic(QString name_,QPoint pos_,int ID_);
+    Pic(QString name_,int ID_);
     void save(QTextStream& in);
 };
 

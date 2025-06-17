@@ -1,7 +1,7 @@
 #include "editabletext.h"
 
-EditableText::EditableText(QString name_,QPoint pos_)
-    :QGraphicsTextItem("填入文字...",nullptr),name(name_),pos(pos_){
+EditableText::EditableText(QString name_)
+    :QGraphicsTextItem("填入文字...",nullptr),name(name_){
     QGraphicsTextItem::setFlags(QGraphicsItem::ItemIsSelectable |
              QGraphicsItem::ItemIsFocusable |
              QGraphicsItem::ItemSendsGeometryChanges);

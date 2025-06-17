@@ -11,10 +11,9 @@ class EditableText : public QGraphicsTextItem
     Q_OBJECT
 private:
     QString name;
-    QPoint pos;
     void setTextInteraction(bool activate);
 public:
-    EditableText(QString name_,QPoint pos_);
+    EditableText(QString name_);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QPoint get_delta();
 };

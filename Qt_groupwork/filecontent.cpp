@@ -2,8 +2,8 @@
 
 QIcon FileContent::fileIcon(":/assets/file.svg");
 
-FileContent::FileContent(QString name_,QPoint pos_,int ID_)
-    :ID(ID_),name(name_),pos(pos_){
+FileContent::FileContent(QString name_,int ID_)
+    :ID(ID_),name(name_){
     m_spacing = 0;
     m_iconSize = QSize(32, 32);
     QFontMetrics fm(QFont("times",10));
@@ -20,7 +20,8 @@ QPoint FileContent::get_delta(){
 }
 
 void FileContent::save(QTextStream& in){
-    in<<this->ID<<" "<<this->name<<" "<<this->pos.x()<<" "<<this->pos.y()<<" "<<Qt::endl;
+    QPointF pos = this->scenePos();
+    in<<this->ID<<" "<<this->name<<" "<<pos.x()<<" "<<pos.y()<<" "<<Qt::endl;
 }
 
 QRectF FileContent::boundingRect() const {

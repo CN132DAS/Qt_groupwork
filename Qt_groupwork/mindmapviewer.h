@@ -17,10 +17,10 @@ extern QString _state_;
 class MindMapViewer : public QGraphicsView
 {
 private:
-    QPointF tmp_pos;
-    QPointF centerAnchor;
+    QPoint m_last_pos;
     QGraphicsScene* scene;
     QWidget* parent;
+    qreal view_x,view_y;
     SaveFile* save_SF;
     bool m_panning;
 public:

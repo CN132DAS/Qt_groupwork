@@ -258,6 +258,8 @@ void MainWindow::new_save(){
 void MainWindow::close_save(){
     _saveName_ = "";
     this->unfreeze(false);
+    _state_ = "";
+    this->only_toggle_one_button();
     viewer->close_save();
     this->setWindowTitle("MindMap");
 }
@@ -276,36 +278,7 @@ void MainWindow::load_save(){
     }
 }
 
-
 //重写函数
-
-void MainWindow::mousePressEvent(QMouseEvent* event){
-    QPoint tmp = event->pos();
-    if(tmp.y()>30&&tmp.x()>100)
-        viewer->mousePressEvent(event);
-    event->accept();
-}
-
-void MainWindow::mouseMoveEvent(QMouseEvent* event){
-    QPoint tmp = event->pos();
-    if((tmp.y()>30&&tmp.x()>100)||viewer->is_panning())
-        viewer->mouseMoveEvent(event);
-    event->accept();
-}
-
-void MainWindow::mouseReleaseEvent(QMouseEvent* event){
-    QPoint tmp = event->pos();
-    if((tmp.y()>30&&tmp.x()>100)||viewer->is_panning())
-        viewer->mouseReleaseEvent(event);
-    event->accept();
-}
-
-void MainWindow::wheelEvent(QWheelEvent* event){
-    QPointF tmp = event->position();
-    if(tmp.y()>30&&tmp.x()>100)
-        viewer->wheelEvent(event);
-    event->accept();
-}
 
 void MainWindow::resizeEvent(QResizeEvent *event){
     int h_ = event->size().height();

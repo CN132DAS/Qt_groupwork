@@ -40,9 +40,9 @@ public:
     void new_save();
     void clear();
     void set_scene(QGraphicsScene* scene_);
-    QPair<QPoint,FileContent*> add_file(QString dir,QPoint pos);
-    QPair<QPoint,Pic*> add_pic(QString dir,QPoint pos);
-    QPair<QPoint,EditableText*>add_text(QPoint pos);
+    QPair<QPoint,FileContent*> add_file(QString dir);
+    QPair<QPoint,Pic*> add_pic(QString dir);
+    QPair<QPoint,EditableText*>add_text();
     void save();
 public slots:
 signals:
