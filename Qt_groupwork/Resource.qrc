@@ -13,5 +13,6 @@
         <file>assets/undo.svg</file>
         <file>assets/add-pic.svg</file>
         <file>assets/drag.svg</file>
+        <file>assets/add-con.svg</file>
     </qresource>
 </RCC>

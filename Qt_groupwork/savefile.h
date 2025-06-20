@@ -12,8 +12,9 @@
 #include <QPoint>
 #include <QString>
 #include <QTextStream>
-#include <QVarLengthArray>
+#include <QMap>
 #include <QVector>
+#include "connection.h"
 #include "editabletext.h"
 #include "filecontent.h"
 #include "pic.h"
@@ -27,11 +28,13 @@ class SaveFile : public QObject   //存档文件结构
 private:
     QString saveName;
     int picNum;
-    QVarLengthArray<Pic*> pic;
+    QMap<int,Pic*> pic;
     int fileNum;
-    QVarLengthArray<FileContent*> file;
+    QMap<int,FileContent*> file;
     int textNum;
-    QVarLengthArray<EditableText*> text;
+    QMap<int,EditableText*> text;
+    int conNum;
+    QMap<int,Connection*> connection;
     QGraphicsScene* scene;
 public:
     explicit SaveFile(QString saveName_="",QGraphicsScene* scene_ = nullptr,QObject *parent = nullptr);
@@ -43,7 +46,9 @@ public:
     QPair<QPoint,FileContent*> add_file(QString dir);
     QPair<QPoint,Pic*> add_pic(QString dir);
     QPair<QPoint,EditableText*>add_text();
+    Connection* add_connection(QGraphicsItem* item1,QGraphicsItem* item2);
     void save();
+    void set_item_selectability(bool selectable);
 public slots:
 signals:
     friend class MainWindow;

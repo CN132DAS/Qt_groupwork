@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QSize>
 #include <QString>
+#include <QStyleOptionGraphicsItem>
 #include <QTextStream>
 #include <QWidget>
 
@@ -23,9 +24,12 @@ class FileContent : public QGraphicsItem
 public:
     FileContent(QString name_,int ID_);
     QPoint get_delta();
+    int get_ID();
     void save(QTextStream& in);
     QRectF boundingRect() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget = nullptr) override;    
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget = nullptr) override;
+signals:
+    void position_changed();
 };
 
 #endif // FILECONTENT_H

@@ -23,15 +23,12 @@ private:
     qreal view_x,view_y;
     SaveFile* save_SF;
     bool m_panning;
+    QGraphicsItem* selectedItem;
 public:
-    // void disable();
-    // void clear();
-
     MindMapViewer(QWidget* parent= nullptr,SaveFile* save = nullptr);
     void new_save();
     void close_save();
     void load(QString dir);
-    bool is_panning();
 public slots:
     // void set_drag_mode(bool checked);
 public:

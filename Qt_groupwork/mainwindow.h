@@ -53,6 +53,7 @@ private:
     QPushButton* addText_PB;
     QPushButton* addPic_PB;
     QPushButton* addFile_PB;
+    QPushButton* addCon_PB;
     QPushButton* drag_PB;
 
 public:
@@ -65,6 +66,7 @@ public slots:
     void toggle_addText_PB(bool checked);
     void toggle_addPic_PB(bool checked);
     void toggle_addFile_PB(bool checked);
+    void toggle_addCon_PB(bool checked);
     void toggle_drag_PB(bool checked);
     void only_toggle_one_button();
     void new_save();

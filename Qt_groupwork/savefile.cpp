@@ -2,7 +2,7 @@
 #include "func_.h"
 
 SaveFile::SaveFile(QString saveName_,QGraphicsScene* scene_,QObject *parent)
-    : QObject{parent},saveName(saveName_),picNum(0),fileNum(0),textNum(0),scene(scene_){}
+    : QObject{parent},saveName(saveName_),picNum(0),fileNum(0),textNum(0),conNum(0),scene(scene_){}
 
 //
 
@@ -31,7 +31,7 @@ QPair<QPoint,Pic*> SaveFile::add_pic(QString dir){
     QString targetPath = get_filePath(picName);
     QFile::copy(dir,targetPath);
     Pic* pic_ = new Pic(picName,picNum);
-    pic.push_back(pic_);
+    pic.insert(picNum,pic_);
     QPixmap pic_pixmap(targetPath);
     int w = pic_pixmap.width();
     int h = pic_pixmap.height();
@@ -50,17 +50,33 @@ QPair<QPoint,FileContent*> SaveFile::add_file(QString dir){
     QFile::copy(dir,targetPath);
     fileNum++;
     FileContent* file_ = new FileContent(fileName,fileNum);
-    file.push_back(file_);
+    file.insert(fileNum,file_);
     QPoint delta = file_->get_delta();
     return qMakePair(delta,file_);
 }
 
 QPair<QPoint,EditableText*> SaveFile::add_text(){
-    QString textName = "Text_"+QString::number(textNum+1);
-    EditableText* text_ = new EditableText(textName);
-    text.push_back(text_);
+    textNum++;
+    QString textName = "Text_"+QString::number(textNum);
+    EditableText* text_ = new EditableText(textName,textNum);
+    text.insert(textNum,text_);
     QPoint delta = text_->get_delta();
     return qMakePair(delta,text_);
+}
+
+Connection* SaveFile::add_connection(QGraphicsItem* item1,QGraphicsItem* item2){
+    for(auto item = connection.begin();item!=connection.end();item++){
+        auto pair = (*item)->get_pair();
+        if(qMakePair(item1,item2)==pair ||qMakePair(item2,item1)==pair){
+            qDebug()<<"connection not created!(part1)"<<Qt::endl;
+            return nullptr;
+        }
+    }
+    conNum += 1;
+    Connection *con = new Connection(item1,item2,conNum);
+    connection.insert(conNum,con);
+    qDebug()<<"connection created!(part1)"<<Qt::endl;
+    return con;
 }
 
 void SaveFile::save(){
@@ -76,6 +92,18 @@ void SaveFile::save(){
     in<<fileNum<<Qt::endl;
     if(fileNum!=0){
         for(auto it = file.begin();it!=file.end();it++){
+            (*it)->save(in);
+        }
+    }
+    in<<textNum<<Qt::endl;
+    if(textNum!=0){
+        for(auto it = text.begin();it!=text.end();it++){
+            // (*it)->save(in);
+        }
+    }
+    in<<conNum<<Qt::endl;
+    if(conNum!=0){
+        for(auto it = connection.begin();it!=connection.end();it++){
             (*it)->save(in);
         }
     }
@@ -100,7 +128,7 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         qreal x,y;
         out>>x>>y;
         Pic* pic_ = new Pic(name,ID);
-        pic.push_back(pic_);
+        pic.insert(ID,pic_);
         scene->addItem(pic_);
         pic_->setPos(QPointF(x,y));
     }
@@ -113,10 +141,19 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         qreal x,y;
         out>>x>>y;
         FileContent* file_ = new FileContent(name,ID);
-        file.push_back(file_);
+        file.insert(ID,file_);
         scene->addItem(file_);
         file_->setPos(QPointF(x,y));
     }
+}
+
+void SaveFile::set_item_selectability(bool selectable){
+    for(auto item = pic.begin();item!=pic.end();item++)
+        item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    for(auto item = file.begin();item!=file.end();item++)
+        item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    for(auto item = text.begin();item!=text.end();item++)
+        item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
 }
 
 //槽函数

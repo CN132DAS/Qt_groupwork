@@ -19,6 +19,8 @@ QPoint FileContent::get_delta(){
     return QPoint(m_totalWidth/2,m_totalHeight/2);
 }
 
+int FileContent::get_ID(){return this->ID;}
+
 void FileContent::save(QTextStream& in){
     QPointF pos = this->scenePos();
     in<<this->ID<<" "<<this->name<<" "<<pos.x()<<" "<<pos.y()<<" "<<Qt::endl;
@@ -44,4 +46,8 @@ void FileContent::paint
                     m_iconSize.width(),
                     m_iconSize.height());
     fileIcon.paint(painter, iconRect.toRect());
+    if(option->state & QStyle::State_Selected){
+        painter->setPen(QPen(Qt::red, 3, Qt::DashLine));
+        painter->drawRect(boundingRect().adjusted(-2, -2, 2, 2));
+    }
 }

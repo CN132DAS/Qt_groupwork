@@ -113,36 +113,45 @@ MainWindow::MainWindow(QWidget *parent)
         addText_PB = new QPushButton("插入文字",toolBar);
         addPic_PB = new QPushButton("插入图片",toolBar);
         addFile_PB = new QPushButton("插入文件",toolBar);
+        addCon_PB = new QPushButton("新建连接",toolBar);
         drag_PB = new QPushButton("拖动画布",toolBar);
 
         QIcon addText_Q(":/assets/add-text.svg");
         QIcon addPic_Q(":/assets/add-pic.svg");
         QIcon addFile_Q(":/assets/add-file.svg");
+        QIcon addCon_Q(":/assets/add-con.svg");
         QIcon drag_Q(":/assets/drag.svg");
 
         addText_PB->setIcon(addText_Q);
         addPic_PB->setIcon(addPic_Q);
         addFile_PB->setIcon(addFile_Q);
+        addCon_PB->setIcon(addCon_Q);
         drag_PB->setIcon(drag_Q);
 
         addText_PB->setIconSize(QSize(40,40));
         addPic_PB->setIconSize(QSize(40,40));
         addFile_PB->setIconSize(QSize(40,40));
+        addCon_PB->setIconSize(QSize(40,40));
         drag_PB->setIconSize(QSize(40,40));
 
         addText_PB->setCheckable(true);
         addPic_PB->setCheckable(true);
         addFile_PB->setCheckable(true);
+        addCon_PB->setCheckable(true);
         drag_PB->setCheckable(true);
 
         toolBar->addWidget(addText_PB);
         toolBar->addWidget(addPic_PB);
         toolBar->addWidget(addFile_PB);
+        toolBar->addSeparator();
+        toolBar->addWidget(addCon_PB);
+        toolBar->addSeparator();
         toolBar->addWidget(drag_PB);
 
         addText_PB->setEnabled(false);
         addPic_PB->setEnabled(false);
         addFile_PB->setEnabled(false);
+        addCon_PB->setEnabled(false);
         drag_PB->setEnabled(false);
 
         connect(addText_PB,&QAbstractButton::toggled,
@@ -151,6 +160,8 @@ MainWindow::MainWindow(QWidget *parent)
                 this,&MainWindow::toggle_addPic_PB);
         connect(addFile_PB,&QAbstractButton::toggled,
                 this,&MainWindow::toggle_addFile_PB);
+        connect(addCon_PB,&QAbstractButton::toggled,
+                this,&MainWindow::toggle_addCon_PB);
         connect(drag_PB,&QAbstractButton::toggled,
                 this,&MainWindow::toggle_drag_PB);
         connect(this,&MainWindow::state_changed,
@@ -172,6 +183,7 @@ void MainWindow::unfreeze(bool unfreeze){
     addText_PB->setEnabled(unfreeze);
     addPic_PB->setEnabled(unfreeze);
     addFile_PB->setEnabled(unfreeze);
+    addCon_PB->setEnabled(unfreeze);
     drag_PB->setEnabled(unfreeze);
 }
 
@@ -210,6 +222,18 @@ void MainWindow::toggle_addFile_PB(bool checked){
     }
 }
 
+void MainWindow::toggle_addCon_PB(bool checked){
+    if(checked){
+        _state_ = "addCon";
+        save_SF->set_item_selectability(true);
+        emit state_changed();
+    }
+    else if(_state_ == "addCon"){
+        _state_ = "";
+        emit state_changed();
+    }
+}
+
 void MainWindow::toggle_drag_PB(bool checked){
     if(checked){
         _state_ = "drag";
@@ -228,6 +252,10 @@ void MainWindow::only_toggle_one_button(){
         addPic_PB->setChecked(false);
     if(_state_!="addFile")
         addFile_PB->setChecked(false);
+    if(_state_!="addCon"){
+        addCon_PB->setChecked(false);
+        save_SF->set_item_selectability(false);
+    }
     if(_state_!="drag")
         drag_PB->setChecked(false);
 }

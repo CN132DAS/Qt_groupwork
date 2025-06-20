@@ -1,29 +1,8 @@
 #include "mindmapviewer.h"
 #include "func_.h"
 
-// void MindMapViewer::clear(){
-//     scene->clear();
-//     this->update();
-// }
-
-// void MindMapViewer::disable(){
-//     scene->clear();
-//     scene->addText("新建或打开文件以继续");
-//     this->setInteractive(false);
-//     this->setEnabled(false);
-//     this->update();
-// }
-
-// void MindMapViewer::set_drag_mode(bool checked){
-//     if(checked)
-//         this->setDragMode(QGraphicsView::ScrollHandDrag);
-//     else
-//         this->setDragMode(QGraphicsView::DragMode::NoDrag);
-// }
-//
-
 MindMapViewer::MindMapViewer(QWidget* parent_,SaveFile* save):
-    QGraphicsView(parent_),scene(nullptr),save_SF(save),m_panning(false){
+    QGraphicsView(parent_),scene(nullptr),save_SF(save),m_panning(false),selectedItem(nullptr){
     parent = parent_;
     scene = new QGraphicsScene(this);
     save->set_scene(scene);
@@ -59,10 +38,6 @@ void MindMapViewer::load(QString dir){
     this->update();
 }
 
-bool MindMapViewer::is_panning(){
-    return m_panning;
-}
-
 //槽函数
 
 
@@ -93,7 +68,7 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
                 pic->setPos(scene_pos);
             }
         }
-        if(_state_ == "addFile"){
+        else if(_state_ == "addFile"){
             QString dir = QFileDialog::getOpenFileName(this,"选择文件",QString());
             if(dir!=""){
                 auto pair = save_SF->add_file(dir);
@@ -107,12 +82,42 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
                 file->setPos(scene_pos);
             }
         }
+        else if(_state_ == "addCon"){
+            QPointF scenePos = mapToScene(event->pos());
+            QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
+            if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
+                if(selectedItem == nullptr){
+                    selectedItem = clickedItem;
+                    selectedItem->setSelected(true);
+                }
+                else if(selectedItem == clickedItem){
+                    selectedItem->setSelected(false);
+                    selectedItem = nullptr;
+                }
+                else{
+                    Connection* con = save_SF->add_connection(selectedItem,clickedItem);
+                    if(con!=nullptr){
+                        scene->addItem(con);
+                        qDebug()<<"connection created!(part2)"<<Qt::endl;
+                    }
+                    selectedItem->setSelected(false);
+                    selectedItem = nullptr;
+                }
+            }
+        }
         else if(_state_ =="drag"){
             setTransformationAnchor(QGraphicsView::NoAnchor);
             m_last_pos = event->pos();
             m_panning = true;
             setCursor(Qt::ClosedHandCursor);
-            // setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        }
+    }
+    else if(event->button() == Qt::RightButton){
+        if(_state_ == "addCon"){
+            if(selectedItem != nullptr){
+                selectedItem->setSelected(false);
+                selectedItem = nullptr;
+            }
         }
     }
     event->accept();
@@ -123,15 +128,6 @@ void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
         QPointF mouseDelta = mapToScene(event->pos()) - mapToScene(m_last_pos);
         m_last_pos = event->pos();
         translate(mouseDelta.x(),mouseDelta.y());
-        // QPoint delta = event->pos()- tmp_pos;
-        // qDebug()<<"delta:"<<delta.x()<<delta.y();
-        // qDebug()<<"Rect size:"<<view_x<<view_y;
-        // QPoint oldCenter = viewport()->rect().center();
-        // qDebug()<<"old center:"<<mapToScene(oldCenter).x()<<oldCenter.y();
-        // QPointF newCenter = mapToScene(oldCenter - delta);
-        // centerOn(newCenter);
-        // qDebug()<<"new center:"<<newCenter.x()<<newCenter.y();
-        // tmp_pos = event->pos();
     }
     event->accept();
 }
@@ -146,10 +142,6 @@ void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
 
 void MindMapViewer::wheelEvent(QWheelEvent* event){
     if(this->isEnabled()){
-        // setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-        // int wheelValue = event->angleDelta().y();
-        // double ratio = (double)wheelValue / (double)1200 + 1;
-        // this->scale(ratio, ratio);
         QPointF sceneCenter = mapToScene(viewport()->rect().center());
         double scaleFactor = (event->angleDelta().y() > 0) ? 1.1 : 0.9;
         scale(scaleFactor, scaleFactor);
