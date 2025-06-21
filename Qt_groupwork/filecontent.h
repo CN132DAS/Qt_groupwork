@@ -2,7 +2,7 @@
 #define FILECONTENT_H
 
 #include <QFontMetrics>
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 #include <QIcon>
 #include <QPainter>
 #include <QSize>
@@ -14,8 +14,9 @@
 
 
 
-class FileContent : public QGraphicsItem
+class FileContent : public QGraphicsObject
 {
+    Q_OBJECT
     int m_spacing,m_textWidth,m_totalWidth,m_totalHeight,m_margin;
     int ID;//从1开始
     QString name;

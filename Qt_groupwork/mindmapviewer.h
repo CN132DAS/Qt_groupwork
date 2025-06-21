@@ -29,8 +29,7 @@ public:
     void new_save();
     void close_save();
     void load(QString dir);
-public slots:
-    // void set_drag_mode(bool checked);
+    void clearSelectedItem();
 public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;

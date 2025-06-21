@@ -114,7 +114,7 @@ MainWindow::MainWindow(QWidget *parent)
         addPic_PB = new QPushButton("插入图片",toolBar);
         addFile_PB = new QPushButton("插入文件",toolBar);
         addCon_PB = new QPushButton("新建连接",toolBar);
-        drag_PB = new QPushButton("拖动画布",toolBar);
+        drag_PB = new QPushButton("拖动",toolBar);
 
         QIcon addText_Q(":/assets/add-text.svg");
         QIcon addPic_Q(":/assets/add-pic.svg");
@@ -192,6 +192,8 @@ void MainWindow::unfreeze(bool unfreeze){
 void MainWindow::toggle_addText_PB(bool checked){
     if(checked){
         _state_ = "addText";
+        viewer->clearSelectedItem();
+        save_SF->set_item_selectability(false);
         emit state_changed();
     }
     else if(_state_ == "addText"){
@@ -203,6 +205,8 @@ void MainWindow::toggle_addText_PB(bool checked){
 void MainWindow::toggle_addPic_PB(bool checked){
     if(checked){
         _state_ = "addPic";
+        viewer->clearSelectedItem();
+        save_SF->set_item_selectability(false);
         emit state_changed();
     }
     else if(_state_ == "addPic"){
@@ -214,6 +218,8 @@ void MainWindow::toggle_addPic_PB(bool checked){
 void MainWindow::toggle_addFile_PB(bool checked){
     if(checked){
         _state_ = "addFile";
+        viewer->clearSelectedItem();
+        save_SF->set_item_selectability(false);
         emit state_changed();
     }
     else if(_state_ == "addFile"){
@@ -225,11 +231,13 @@ void MainWindow::toggle_addFile_PB(bool checked){
 void MainWindow::toggle_addCon_PB(bool checked){
     if(checked){
         _state_ = "addCon";
+        viewer->clearSelectedItem();
         save_SF->set_item_selectability(true);
         emit state_changed();
     }
     else if(_state_ == "addCon"){
         _state_ = "";
+        save_SF->set_item_selectability(false);
         emit state_changed();
     }
 }
@@ -237,10 +245,13 @@ void MainWindow::toggle_addCon_PB(bool checked){
 void MainWindow::toggle_drag_PB(bool checked){
     if(checked){
         _state_ = "drag";
+        viewer->clearSelectedItem();
+        save_SF->set_item_selectability(true);
         emit state_changed();
     }
     else if(_state_ == "drag"){
         _state_ = "";
+        save_SF->set_item_selectability(false);
         emit state_changed();
     }
 }
@@ -252,10 +263,8 @@ void MainWindow::only_toggle_one_button(){
         addPic_PB->setChecked(false);
     if(_state_!="addFile")
         addFile_PB->setChecked(false);
-    if(_state_!="addCon"){
+    if(_state_!="addCon")
         addCon_PB->setChecked(false);
-        save_SF->set_item_selectability(false);
-    }
     if(_state_!="drag")
         drag_PB->setChecked(false);
 }

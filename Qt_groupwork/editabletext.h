@@ -19,6 +19,8 @@ public:
     QPoint get_delta();
     int get_ID();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+signals:
+    void position_changed();
 };
 
 #endif // EDITABLETEXT_H

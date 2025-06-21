@@ -38,6 +38,12 @@ void MindMapViewer::load(QString dir){
     this->update();
 }
 
+void MindMapViewer::clearSelectedItem(){
+    if(selectedItem&& selectedItem->flags() & QGraphicsItem::ItemIsSelectable)
+        selectedItem->setSelected(false);
+    selectedItem = nullptr;
+}
+
 //槽函数
 
 
@@ -96,10 +102,8 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
                 }
                 else{
                     Connection* con = save_SF->add_connection(selectedItem,clickedItem);
-                    if(con!=nullptr){
+                    if(con!=nullptr)
                         scene->addItem(con);
-                        qDebug()<<"connection created!(part2)"<<Qt::endl;
-                    }
                     selectedItem->setSelected(false);
                     selectedItem = nullptr;
                 }
@@ -110,6 +114,11 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             m_last_pos = event->pos();
             m_panning = true;
             setCursor(Qt::ClosedHandCursor);
+            QGraphicsItem *clickedItem = scene->itemAt(mapToScene(event->pos()),QTransform());
+            if(clickedItem && clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
+                selectedItem = clickedItem;
+                selectedItem->setSelected(true);
+            }
         }
     }
     else if(event->button() == Qt::RightButton){
@@ -125,9 +134,24 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
 
 void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
     if(_state_ =="drag"&&m_panning){
-        QPointF mouseDelta = mapToScene(event->pos()) - mapToScene(m_last_pos);
+        if(!selectedItem){
+            QPointF mouseDelta = mapToScene(event->pos()) - mapToScene(m_last_pos);
+            translate(mouseDelta.x(),mouseDelta.y());
+        }
+        else{
+            QPointF mouseDelta = mapToScene(event->pos()) - mapToScene(m_last_pos);
+            selectedItem->setPos(selectedItem->pos() + mouseDelta);
+            if (auto item = dynamic_cast<Pic*>(selectedItem)) {
+                emit item->position_changed();
+            }
+            else if (auto item = dynamic_cast<FileContent*>(selectedItem)) {
+                emit item->position_changed();
+            }
+            else if (auto item = dynamic_cast<EditableText*>(selectedItem)) {
+                emit item->position_changed();
+            }
+        }
         m_last_pos = event->pos();
-        translate(mouseDelta.x(),mouseDelta.y());
     }
     event->accept();
 }
@@ -136,6 +160,9 @@ void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
     if(_state_ =="drag"){
         setCursor(Qt::ArrowCursor);
         m_panning = false;
+        if(selectedItem)
+            selectedItem->setSelected(false);
+        selectedItem = nullptr;
     }
     event->accept();
 }

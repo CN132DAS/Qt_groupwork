@@ -67,15 +67,30 @@ QPair<QPoint,EditableText*> SaveFile::add_text(){
 Connection* SaveFile::add_connection(QGraphicsItem* item1,QGraphicsItem* item2){
     for(auto item = connection.begin();item!=connection.end();item++){
         auto pair = (*item)->get_pair();
-        if(qMakePair(item1,item2)==pair ||qMakePair(item2,item1)==pair){
-            qDebug()<<"connection not created!(part1)"<<Qt::endl;
+        if(qMakePair(item1,item2)==pair ||qMakePair(item2,item1)==pair)
             return nullptr;
-        }
     }
-    conNum += 1;
+    conNum++;
     Connection *con = new Connection(item1,item2,conNum);
     connection.insert(conNum,con);
-    qDebug()<<"connection created!(part1)"<<Qt::endl;
+    if (auto item = dynamic_cast<Pic*>(item1)) {
+        connect(item, &Pic::position_changed, con, &Connection::updatePath);
+    }
+    else if (auto item = dynamic_cast<FileContent*>(item1)) {
+        connect(item, &FileContent::position_changed, con, &Connection::updatePath);
+    }
+    else if (auto item = dynamic_cast<EditableText*>(item1)) {
+        connect(item, &EditableText::position_changed, con, &Connection::updatePath);
+    }
+    if (auto item = dynamic_cast<Pic*>(item2)) {
+        connect(item, &Pic::position_changed, con, &Connection::updatePath);
+    }
+    else if (auto item = dynamic_cast<FileContent*>(item2)) {
+        connect(item, &FileContent::position_changed, con, &Connection::updatePath);
+    }
+    else if (auto item = dynamic_cast<EditableText*>(item2)) {
+        connect(item, &EditableText::position_changed, con, &Connection::updatePath);
+    }
     return con;
 }
 
@@ -96,11 +111,11 @@ void SaveFile::save(){
         }
     }
     in<<textNum<<Qt::endl;
-    if(textNum!=0){
-        for(auto it = text.begin();it!=text.end();it++){
-            // (*it)->save(in);
-        }
-    }
+    // if(textNum!=0){
+    //     for(auto it = text.begin();it!=text.end();it++){
+    //         (*it)->save(in);
+    //     }
+    // }
     in<<conNum<<Qt::endl;
     if(conNum!=0){
         for(auto it = connection.begin();it!=connection.end();it++){
@@ -144,6 +159,46 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         file.insert(ID,file_);
         scene->addItem(file_);
         file_->setPos(QPointF(x,y));
+    }
+    out>>textNum;
+    // for(int i = 0;i<textNum;i++){
+
+    // }
+    out>>conNum;
+    for(int i = 0;i<conNum;i++){
+        int ID,ID_[2];
+        QString type_[2];
+        out>>ID>>type_[0]>>ID_[0]>>type_[1]>>ID_[1];
+        QGraphicsItem* item_[2];
+        for(int j = 0;j<=1;j++){
+            if(type_[j]=="pic")
+                item_[j] = pic[ID_[j]];
+            else if(type_[j]=="text")
+                item_[j] = text[ID_[j]];
+            else if(type_[j]=="file")
+                item_[j] = file[ID_[j]];
+        }
+        Connection *con = new Connection(item_[0],item_[1],ID);
+        connection.insert(conNum,con);
+        if (auto item = dynamic_cast<Pic*>(item_[0])) {
+            connect(item, &Pic::position_changed, con, &Connection::updatePath);
+        }
+        else if (auto item = dynamic_cast<FileContent*>(item_[0])) {
+            connect(item, &FileContent::position_changed, con, &Connection::updatePath);
+        }
+        else if (auto item = dynamic_cast<EditableText*>(item_[0])) {
+            connect(item, &EditableText::position_changed, con, &Connection::updatePath);
+        }
+        if (auto item = dynamic_cast<Pic*>(item_[1])) {
+            connect(item, &Pic::position_changed, con, &Connection::updatePath);
+        }
+        else if (auto item = dynamic_cast<FileContent*>(item_[1])) {
+            connect(item, &FileContent::position_changed, con, &Connection::updatePath);
+        }
+        else if (auto item = dynamic_cast<EditableText*>(item_[1])) {
+            connect(item, &EditableText::position_changed, con, &Connection::updatePath);
+        }
+        scene->addItem(con);
     }
 }
 

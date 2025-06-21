@@ -5,13 +5,6 @@ Connection::Connection(QGraphicsItem *item1_,QGraphicsItem *item2_,int ID_)
     pen = QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     setZValue(-1);
     updatePath();
-    // 监听两个矩形的位置变化
-    if (item1) {
-        item1->setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
-    }
-    if (item2) {
-        item2->setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
-    }
 }
 
 void Connection::save(QTextStream& in){
@@ -106,6 +99,7 @@ void Connection::updatePath()
     }
     path.cubicTo(ctrl1, ctrl2, endPoint);
     prepareGeometryChange();
+    update();
 }
 
 QString Connection::gatSaveInfo(QGraphicsItem* item){
@@ -122,13 +116,6 @@ QString Connection::gatSaveInfo(QGraphicsItem* item){
 }
 
 //重载函数
-QVariant Connection::itemChange(GraphicsItemChange change, const QVariant& value)
-{
-    if (change == ItemScenePositionHasChanged) {
-        updatePath();
-    }
-    return QGraphicsItem::itemChange(change, value);
-}
 
 void Connection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
