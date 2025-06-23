@@ -1,20 +1,22 @@
 #include "connection.h"
 
-Connection::Connection(QGraphicsItem *item1_,QGraphicsItem *item2_,int ID_)
+//public
+Connection::Connection(MyGraphicsObject *item1_,MyGraphicsObject *item2_,int ID_)
     :ID(ID_),item1(item1_),item2(item2_){
     pen = QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     setZValue(-1);
     updatePath();
 }
 
-void Connection::save(QTextStream& in){
-    in<<this->ID<<" "<<this->gatSaveInfo(item1)<<" "<<this->gatSaveInfo(item2)<<Qt::endl;
+void Connection::save(QTextStream& out,int i){
+    this->ID = i;
+    out<<this->ID<<" "<<this->get_info(item1)<<" "<<this->get_info(item2)<<Qt::endl;
 }
 
-QPair<QGraphicsItem*,QGraphicsItem*> Connection::get_pair(){return qMakePair(item1,item2);}
+QPair<MyGraphicsObject*,MyGraphicsObject*> Connection::get_pair(){return qMakePair(item1,item2);}
 
-//私有函数
-QPair<QPointF, QPointF> Connection::getConnectionPoints(QGraphicsItem* item1, QGraphicsItem* item2) const
+//private
+QPair<QPointF, QPointF> Connection::get_ConnectionPoints(MyGraphicsObject* item1, MyGraphicsObject* item2) const
 {
     QRectF rect1 = item1->mapRectToScene(item1->boundingRect());
     QRectF rect2 = item2->mapRectToScene(item2->boundingRect());
@@ -80,7 +82,7 @@ QPair<QPointF, QPointF> Connection::getConnectionPoints(QGraphicsItem* item1, QG
 
 void Connection::updatePath()
 {
-    auto points = getConnectionPoints(item1, item2);
+    auto points = get_ConnectionPoints(item1, item2);
     QPointF startPoint = mapFromScene(points.first);
     QPointF endPoint = mapFromScene(points.second);
 
@@ -102,20 +104,12 @@ void Connection::updatePath()
     update();
 }
 
-QString Connection::gatSaveInfo(QGraphicsItem* item){
-    if (auto* fileContent = dynamic_cast<FileContent*>(item)) {
-        return "file " + QString::number(fileContent->get_ID());
-    }
-    else if (auto* editableText = dynamic_cast<EditableText*>(item)) {
-        return "text " + QString::number(editableText->get_ID());
-    }
-    else if (auto* pic = dynamic_cast<Pic*>(item)) {
-        return "pic " + QString::number(pic->get_ID());
-    }
-    return "";
+QString Connection::get_info(MyGraphicsObject* item){
+    return item->get_info();
 }
 
-//重载函数
+//override
+QString Connection::get_info()const{return "line "+QString::number(this->ID);}
 
 void Connection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
@@ -129,5 +123,9 @@ void Connection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 QRectF Connection::boundingRect() const
 {
     return path.boundingRect().adjusted(-pen.width(), -pen.width(),
-                                          pen.width(), pen.width());
+                                        pen.width(), pen.width());
+}
+
+int Connection::type() const{
+    return UserType + 4;
 }

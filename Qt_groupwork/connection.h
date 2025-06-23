@@ -5,29 +5,26 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPen>
-#include "editabletext.h"
-#include "filecontent.h"
-#include "pic.h"
+#include "mygraphicsobject.h"
 
-
-class Connection : public QGraphicsObject
+class Connection : public MyGraphicsObject
 {
 private:
     int ID;
-    QGraphicsItem *item1,*item2;
+    MyGraphicsObject *item1,*item2;
     QPen pen;
     QPainterPath path;
 private:
-    QPair<QPointF, QPointF> getConnectionPoints(QGraphicsItem* item1, QGraphicsItem* item2) const;
-    QString gatSaveInfo(QGraphicsItem* item);
+    QPair<QPointF, QPointF> get_ConnectionPoints(MyGraphicsObject* item1, MyGraphicsObject* item2) const;
+    QString get_info(MyGraphicsObject* item);
 public:
-    Connection(QGraphicsItem *item1_,QGraphicsItem *item2_,int ID_);
-    void save(QTextStream& in);
-    QPair<QGraphicsItem*,QGraphicsItem*> get_pair();
+    Connection(MyGraphicsObject *item1_,MyGraphicsObject *item2_,int ID_);
+    void save(QTextStream& out,int i);
+    QPair<MyGraphicsObject*,MyGraphicsObject*> get_pair();
+    QString get_info() const override;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
     QRectF boundingRect() const override;
-signals:
-    void deleteConnection(int ID,QString type = "Connection");
+    int type() const override;
 public slots:
     void updatePath();
 };

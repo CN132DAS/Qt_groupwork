@@ -12,21 +12,23 @@ SOURCES += \
     connection.cpp \
     editabletext.cpp \
     filecontent.cpp \
-    func_.cpp \
+    function.cpp \
     main.cpp \
     mainwindow.cpp \
+    mygraphicsobject.cpp \
+    picturecontent.cpp \
     mindmapviewer.cpp \
-    pic.cpp \
     savefile.cpp
 
 HEADERS += \
     connection.h \
     editabletext.h \
     filecontent.h \
-    func_.h \
+    function.h \
     mainwindow.h \
+    mygraphicsobject.h \
+    picturecontent.h \
     mindmapviewer.h \
-    pic.h \
     savefile.h
 
 FORMS += \

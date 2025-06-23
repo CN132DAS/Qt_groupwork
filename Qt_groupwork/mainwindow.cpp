@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "function.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setMenuBar(menuBar);
     int menuBarH = menuBar->height();
 
-    save_SF = new SaveFile("",nullptr,this);
+    save_SF = new SaveFile("",this);
 
     toolBar = new QToolBar(this);
     toolBar->setOrientation(Qt::Orientation::Vertical);
@@ -192,7 +193,7 @@ void MainWindow::unfreeze(bool unfreeze){
 void MainWindow::toggle_addText_PB(bool checked){
     if(checked){
         _state_ = "addText";
-        viewer->clearSelectedItem();
+        viewer->clear_selectedItem();
         save_SF->set_item_selectability(false);
         emit state_changed();
     }
@@ -205,7 +206,7 @@ void MainWindow::toggle_addText_PB(bool checked){
 void MainWindow::toggle_addPic_PB(bool checked){
     if(checked){
         _state_ = "addPic";
-        viewer->clearSelectedItem();
+        viewer->clear_selectedItem();
         save_SF->set_item_selectability(false);
         emit state_changed();
     }
@@ -218,7 +219,7 @@ void MainWindow::toggle_addPic_PB(bool checked){
 void MainWindow::toggle_addFile_PB(bool checked){
     if(checked){
         _state_ = "addFile";
-        viewer->clearSelectedItem();
+        viewer->clear_selectedItem();
         save_SF->set_item_selectability(false);
         emit state_changed();
     }
@@ -231,7 +232,7 @@ void MainWindow::toggle_addFile_PB(bool checked){
 void MainWindow::toggle_addCon_PB(bool checked){
     if(checked){
         _state_ = "addCon";
-        viewer->clearSelectedItem();
+        viewer->clear_selectedItem();
         save_SF->set_item_selectability(true);
         emit state_changed();
     }
@@ -245,7 +246,7 @@ void MainWindow::toggle_addCon_PB(bool checked){
 void MainWindow::toggle_drag_PB(bool checked){
     if(checked){
         _state_ = "drag";
-        viewer->clearSelectedItem();
+        viewer->clear_selectedItem();
         save_SF->set_item_selectability(true);
         emit state_changed();
     }
@@ -270,22 +271,33 @@ void MainWindow::only_toggle_one_button(){
 }
 
 void MainWindow::new_save(){
-    bool ok{};
     QString saveName;
+    if(_operation_){
+        bool confirm = (QMessageBox::question(nullptr, "存档未保存", "存档有未保存的操作，是否继续创建新存档?",
+                                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
+        if(!confirm)
+            return;
+        else{
+            this->save();
+            this->close_save();
+        }
+    }
     while(1){
+        bool ok = false;
         saveName = QInputDialog::getText(this,"新建文件","存档名",QLineEdit::Normal,QString("新建存档"),&ok);
         if(!ok)
             return;
-        if(QDir(_savePath_+"/"+saveName).exists()){
+        else if(QFileInfo(_saveFolderPath_+"/"+saveName+"/save.dat").exists()){
             QMessageBox::warning(this,"存档已存在","存档已存在\n请更换存档名");
             ok = false;
         }
         if(ok&&!saveName.isEmpty()){
-            QDir(_savePath_+"/"+saveName).mkdir(_savePath_+"/"+saveName);
-            _saveName_ = saveName;
+            set_saveName(saveName);
+            QDir().mkpath(_saveTempPath_);
             break;
         }
     }
+    _operation_ = false;
     viewer->new_save();
     QString title = _saveName_ + "   -MindMap";
     this->setWindowTitle(title);
@@ -293,21 +305,40 @@ void MainWindow::new_save(){
 }
 
 void MainWindow::close_save(){
+    if(_operation_){
+        bool confirm = (QMessageBox::question(nullptr, "存档未保存", "存档有未保存的操作，是否直接关闭?",
+                                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
+        if(!confirm)
+            return;
+        else
+            this->save();
+    }
     _saveName_ = "";
-    this->unfreeze(false);
     _state_ = "";
     this->only_toggle_one_button();
+    this->unfreeze(false);
     viewer->close_save();
     this->setWindowTitle("MindMap");
 }
 
 void MainWindow::save(){
     save_SF->save();
+    _operation_ = false;
 }
 
 void MainWindow::load_save(){
     QString dir = QFileDialog::getOpenFileName(this,"选择存档",QString(),"文件 (*.dat)");
     if(dir!=""){
+        if(_operation_){
+            bool confirm = (QMessageBox::question(nullptr, "存档未保存", "存档有未保存的操作，是否直接读取存档?",
+                                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
+            if(!confirm)
+                return;
+            else{
+                this->save();
+                this->close_save();
+            }
+        }
         viewer->load(dir);
         this->unfreeze(true);
         QString title = _saveName_ + "   -MindMap";

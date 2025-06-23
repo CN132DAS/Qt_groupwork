@@ -1,36 +1,30 @@
 #ifndef FILECONTENT_H
 #define FILECONTENT_H
 
+#include <QFile>
 #include <QFontMetrics>
-#include <QGraphicsObject>
 #include <QIcon>
 #include <QPainter>
 #include <QSize>
 #include <QString>
 #include <QStyleOptionGraphicsItem>
 #include <QTextStream>
-#include <QWidget>
+#include "mygraphicsobject.h"
 
-
-
-
-class FileContent : public QGraphicsObject
+class FileContent : public MyGraphicsObject
 {
-    Q_OBJECT
-    int m_spacing,m_textWidth,m_totalWidth,m_totalHeight,m_margin;
-    int ID;//从1开始
+    int textWidth,totalWidth,totalHeight,margin;
+    int ID;
     QString name;
-    QSize m_iconSize;
+    QSize iconSize;
     static QIcon fileIcon;
 public:
     FileContent(QString name_,int ID_);
-    QPoint get_delta();
-    int get_ID();
-    void save(QTextStream& in);
-    QRectF boundingRect() const override;
+    void save(QTextStream& out,int i);
+    QString get_info() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget = nullptr) override;
-signals:
-    void position_changed();
+    QRectF boundingRect() const override;
+    int type() const override;
 };
 
 #endif // FILECONTENT_H

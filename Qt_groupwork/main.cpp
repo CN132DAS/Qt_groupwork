@@ -1,14 +1,20 @@
+#include <QApplication>
 #include <QDir>
 #include "mainwindow.h"
+QString _saveFolderPath_ = "";
 QString _savePath_ = "";
+QString _saveTempPath_ = "";
 QString _saveName_ = "";
 QString _state_ = "";
+bool _operation_ = false;
 
-#include <QApplication>
-
-// QString appDirPath;
-
-void init();
+void init()
+{
+    QDir current = QDir::current();
+    _saveFolderPath_ = current.path()+"/save";
+    if(!QDir(_saveFolderPath_).exists())
+        QDir().mkdir(_saveFolderPath_);
+}
 
 int main(int argc, char *argv[])
 {
@@ -17,16 +23,4 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     return a.exec();
-}
-
-void init()
-{
-    QDir current = QDir::current();
-    current.cd("..");
-    current.cd("..");
-    _savePath_ = current.path()+"/save";
-    qDebug()<<"save path is: "<<_savePath_;
-    qDebug()<<"is it right?";
-    if(!QDir(_savePath_).exists())
-        QDir(_savePath_).mkdir(_savePath_);
 }

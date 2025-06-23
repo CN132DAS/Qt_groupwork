@@ -1,26 +1,13 @@
 #ifndef EDITABLETEXT_H
 #define EDITABLETEXT_H
 
-#include <QGraphicsTextItem>
-#include <QString>
-#include <QStyleOptionGraphicsItem>
-#include <QPoint>
-#include <QPainter>
+#include "mygraphicsobject.h"
 
-class EditableText : public QGraphicsTextItem
+class EditableText : public MyGraphicsObject
 {
-    Q_OBJECT
-private:
-    QString name;
-    int ID;
-    void setTextInteraction(bool activate);
 public:
-    EditableText(QString name_,int ID_);
-    QPoint get_delta();
-    int get_ID();
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-signals:
-    void position_changed();
+    EditableText();
+    int type() const override;
 };
 
 #endif // EDITABLETEXT_H

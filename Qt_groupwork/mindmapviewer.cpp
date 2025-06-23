@@ -1,11 +1,10 @@
 #include "mindmapviewer.h"
-#include "func_.h"
+#include "function.cpp"
 
 MindMapViewer::MindMapViewer(QWidget* parent_,SaveFile* save):
     QGraphicsView(parent_),scene(nullptr),save_SF(save),m_panning(false),selectedItem(nullptr){
     parent = parent_;
     scene = new QGraphicsScene(this);
-    save->set_scene(scene);
     scene->setSceneRect(-1e6,-1e6,2e6,2e6);
     scene->addText("新建或打开文件以继续");
     this->setScene(scene);
@@ -25,6 +24,7 @@ void MindMapViewer::new_save(){
 void MindMapViewer::close_save(){
     this->setTransform(QTransform());
     this->centerOn(QPointF(0,0));
+    selectedItem = nullptr;
     scene->clear();
     save_SF->clear();
     scene->addText("新建或打开文件以继续");
@@ -33,12 +33,14 @@ void MindMapViewer::close_save(){
 }
 
 void MindMapViewer::load(QString dir){
+    _operation_ = false;
+    scene->clear();
     save_SF->load(dir,scene);
     this->setEnabled(true);
     this->update();
 }
 
-void MindMapViewer::clearSelectedItem(){
+void MindMapViewer::clear_selectedItem(){
     if(selectedItem&& selectedItem->flags() & QGraphicsItem::ItemIsSelectable)
         selectedItem->setSelected(false);
     selectedItem = nullptr;
@@ -54,37 +56,33 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
         return;
     if(event->button() == Qt::LeftButton){
         if(_state_ == "addText"){
-            auto pair = save_SF->add_text();
-            QPoint delta = pair.first;
-            EditableText* text = pair.second;
-            scene->addItem(text);
-            QPointF scene_pos = mapToScene(event->pos());
-            scene_pos -= delta;
-            text->setPos(scene_pos);
+            // auto pair = save_SF->add_text();
+            // QPoint delta = pair.first;
+            // EditableText* text = pair.second;
+            // scene->addItem(text);
+            // QPointF scene_pos = mapToScene(event->pos());
+            // scene_pos -= delta;
+            // text->setPos(scene_pos);
         }
         else if (_state_ == "addPic"){
             QString dir = QFileDialog::getOpenFileName(this,"选择图片",QString(), "图像 (*.png *.xpm *.jpg)");
             if(dir!=""){
-                auto pair = save_SF->add_pic(dir);
-                QPoint delta = pair.first;
-                Pic* pic = pair.second;
+                _operation_ = true;
+                PictureContent* pic = save_SF->add_pic(dir);
                 scene->addItem(pic);
                 QPointF scene_pos = mapToScene(event->pos());
-                scene_pos -= delta;
                 pic->setPos(scene_pos);
             }
         }
         else if(_state_ == "addFile"){
             QString dir = QFileDialog::getOpenFileName(this,"选择文件",QString());
             if(dir!=""){
-                auto pair = save_SF->add_file(dir);
-                QPoint delta = pair.first;
-                FileContent* file = pair.second;
+                FileContent* file = save_SF->add_file(dir);
                 if(file == nullptr)
                     return;
+                _operation_ = true;
                 scene->addItem(file);
                 QPointF scene_pos = mapToScene(event->pos());
-                scene_pos -= delta;
                 file->setPos(scene_pos);
             }
         }
@@ -92,18 +90,21 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             QPointF scenePos = mapToScene(event->pos());
             QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
             if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
+                MyGraphicsObject *newClickedItem = dynamic_cast<MyGraphicsObject*>(clickedItem);
                 if(selectedItem == nullptr){
-                    selectedItem = clickedItem;
+                    selectedItem = newClickedItem;
                     selectedItem->setSelected(true);
                 }
-                else if(selectedItem == clickedItem){
+                else if(selectedItem == newClickedItem){
                     selectedItem->setSelected(false);
                     selectedItem = nullptr;
                 }
                 else{
-                    Connection* con = save_SF->add_connection(selectedItem,clickedItem);
-                    if(con!=nullptr)
+                    Connection* con = save_SF->add_connection(selectedItem,newClickedItem);
+                    if(con!=nullptr){
                         scene->addItem(con);
+                        _operation_ = true;
+                    }
                     selectedItem->setSelected(false);
                     selectedItem = nullptr;
                 }
@@ -116,7 +117,7 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
             setCursor(Qt::ClosedHandCursor);
             QGraphicsItem *clickedItem = scene->itemAt(mapToScene(event->pos()),QTransform());
             if(clickedItem && clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
-                selectedItem = clickedItem;
+                selectedItem = (MyGraphicsObject*)clickedItem;
                 selectedItem->setSelected(true);
             }
         }
@@ -141,17 +142,11 @@ void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
         else{
             QPointF mouseDelta = mapToScene(event->pos()) - mapToScene(m_last_pos);
             selectedItem->setPos(selectedItem->pos() + mouseDelta);
-            if (auto item = dynamic_cast<Pic*>(selectedItem)) {
-                emit item->position_changed();
-            }
-            else if (auto item = dynamic_cast<FileContent*>(selectedItem)) {
-                emit item->position_changed();
-            }
-            else if (auto item = dynamic_cast<EditableText*>(selectedItem)) {
-                emit item->position_changed();
-            }
+            _operation_ = true;
+            emit selectedItem->position_changed();
         }
         m_last_pos = event->pos();
+        scene->update();
     }
     event->accept();
 }
@@ -163,6 +158,7 @@ void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
         if(selectedItem)
             selectedItem->setSelected(false);
         selectedItem = nullptr;
+        scene->update();
     }
     event->accept();
 }
@@ -173,6 +169,7 @@ void MindMapViewer::wheelEvent(QWheelEvent* event){
         double scaleFactor = (event->angleDelta().y() > 0) ? 1.1 : 0.9;
         scale(scaleFactor, scaleFactor);
         centerOn(sceneCenter);
+        scene->update();
         event->accept();
     }
 }

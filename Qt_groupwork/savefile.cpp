@@ -1,13 +1,14 @@
 #include "savefile.h"
-#include "func_.h"
+#include "function.h"
 
-SaveFile::SaveFile(QString saveName_,QGraphicsScene* scene_,QObject *parent)
-    : QObject{parent},saveName(saveName_),picNum(0),fileNum(0),textNum(0),conNum(0),scene(scene_){}
+SaveFile::SaveFile(QString saveName_,QObject *parent)
+    : QObject{parent},saveName(saveName_),picNum(0),fileNum(0),textNum(0),conNum(0){}
 
 //
 
 void SaveFile::new_save(){
     saveName = _saveName_;
+    delete_tempFile();
     this->clear();
 }
 
@@ -20,51 +21,42 @@ void SaveFile::clear(){
     this->textNum = 0;
 }
 
-void SaveFile::set_scene(QGraphicsScene* scene_){
-    scene = scene_;
-}
-
-QPair<QPoint,Pic*> SaveFile::add_pic(QString dir){
+PictureContent* SaveFile::add_pic(QString dir){
     picNum++;
     QFileInfo tmp(dir);
     QString picName = "Pic_"+QString::number(picNum)+"."+tmp.suffix();
-    QString targetPath = get_filePath(picName);
+    QString targetPath = get_fileTempPath(picName);
     QFile::copy(dir,targetPath);
-    Pic* pic_ = new Pic(picName,picNum);
+    PictureContent* pic_ = new PictureContent(picName,picNum,tmp.suffix());
     pic.insert(picNum,pic_);
-    QPixmap pic_pixmap(targetPath);
-    int w = pic_pixmap.width();
-    int h = pic_pixmap.height();
-    QPoint delta(w/2,h/2);
-    return qMakePair(delta,pic_);
+    return pic_;
 }
 
-QPair<QPoint,FileContent*> SaveFile::add_file(QString dir){
+FileContent* SaveFile::add_file(QString dir){
     QFileInfo tmp(dir);
     QString fileName = tmp.fileName();
-    QString targetPath = get_filePath(fileName);
+    QString targetPath = get_fileTempPath(fileName);
     if(QDir(targetPath).exists(targetPath)){
         QMessageBox::warning(nullptr,"文件名重复","已有同名文件，请修改文件名！");
-        return qMakePair(QPoint(),nullptr);
+        return nullptr;
     }
     QFile::copy(dir,targetPath);
     fileNum++;
     FileContent* file_ = new FileContent(fileName,fileNum);
     file.insert(fileNum,file_);
-    QPoint delta = file_->get_delta();
-    return qMakePair(delta,file_);
+    return file_;
 }
 
-QPair<QPoint,EditableText*> SaveFile::add_text(){
-    textNum++;
-    QString textName = "Text_"+QString::number(textNum);
-    EditableText* text_ = new EditableText(textName,textNum);
-    text.insert(textNum,text_);
-    QPoint delta = text_->get_delta();
-    return qMakePair(delta,text_);
-}
+// QPair<QPoint,EditableText*> SaveFile::add_text(){
+//     textNum++;
+//     QString textName = "Text_"+QString::number(textNum);
+//     EditableText* text_ = new EditableText(textName,textNum);
+//     text.insert(textNum,text_);
+//     QPoint delta = text_->get_delta();
+//     return qMakePair(delta,text_);
+// }
 
-Connection* SaveFile::add_connection(QGraphicsItem* item1,QGraphicsItem* item2){
+Connection* SaveFile::add_connection(MyGraphicsObject* item1,MyGraphicsObject* item2){
     for(auto item = connection.begin();item!=connection.end();item++){
         auto pair = (*item)->get_pair();
         if(qMakePair(item1,item2)==pair ||qMakePair(item2,item1)==pair)
@@ -73,60 +65,52 @@ Connection* SaveFile::add_connection(QGraphicsItem* item1,QGraphicsItem* item2){
     conNum++;
     Connection *con = new Connection(item1,item2,conNum);
     connection.insert(conNum,con);
-    if (auto item = dynamic_cast<Pic*>(item1)) {
-        connect(item, &Pic::position_changed, con, &Connection::updatePath);
-    }
-    else if (auto item = dynamic_cast<FileContent*>(item1)) {
-        connect(item, &FileContent::position_changed, con, &Connection::updatePath);
-    }
-    else if (auto item = dynamic_cast<EditableText*>(item1)) {
-        connect(item, &EditableText::position_changed, con, &Connection::updatePath);
-    }
-    if (auto item = dynamic_cast<Pic*>(item2)) {
-        connect(item, &Pic::position_changed, con, &Connection::updatePath);
-    }
-    else if (auto item = dynamic_cast<FileContent*>(item2)) {
-        connect(item, &FileContent::position_changed, con, &Connection::updatePath);
-    }
-    else if (auto item = dynamic_cast<EditableText*>(item2)) {
-        connect(item, &EditableText::position_changed, con, &Connection::updatePath);
-    }
+    connect(item1,&MyGraphicsObject::position_changed,
+            con,&Connection::updatePath);
+    connect(item2,&MyGraphicsObject::position_changed,
+            con,&Connection::updatePath);
     return con;
 }
 
 void SaveFile::save(){
+    delete_file();
     QFile saveFile(get_filePath("save.dat"));
     saveFile.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate);
-    QTextStream in(&saveFile);
-    in<<picNum<<Qt::endl;
+    QTextStream out(&saveFile);
+    out<<picNum<<Qt::endl;
     if(picNum!=0){
+        int i = 1;
         for(auto it = pic.begin();it!=pic.end();it++){
-            (*it)->save(in);
+            (*it)->save(out,i);
+            i++;
         }
     }
-    in<<fileNum<<Qt::endl;
+    out<<fileNum<<Qt::endl;
     if(fileNum!=0){
+        int i = 1;
         for(auto it = file.begin();it!=file.end();it++){
-            (*it)->save(in);
+            (*it)->save(out,i);
+            i++;
         }
     }
-    in<<textNum<<Qt::endl;
+    out<<textNum<<Qt::endl;
     // if(textNum!=0){
     //     for(auto it = text.begin();it!=text.end();it++){
     //         (*it)->save(in);
     //     }
     // }
-    in<<conNum<<Qt::endl;
+    out<<conNum<<Qt::endl;
     if(conNum!=0){
+        int i = 1;
         for(auto it = connection.begin();it!=connection.end();it++){
-            (*it)->save(in);
+            (*it)->save(out,i);
+            i++;
         }
     }
-    saveFile.close();
+    delete_tempFile();
 }
 
 void SaveFile::load(QString dir,QGraphicsScene* scene){
-    scene->clear();
     QFile saveFile(dir);
     saveFile.open(QIODevice::ReadWrite|QIODevice::Text);
     QTextStream out(&saveFile);
@@ -134,15 +118,17 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
     QDir dir_(dir);
     dir_.cdUp();
     saveName = dir_.dirName();
-    _saveName_ = saveName;
+    set_saveName(saveName);
+    move_file();
     for(int i = 0;i<picNum;i++){
         int ID;
         out>>ID;
         QString name;
         out>>name;
+        QString suffix = QFileInfo(name).suffix();
         qreal x,y;
         out>>x>>y;
-        Pic* pic_ = new Pic(name,ID);
+        PictureContent* pic_ = new PictureContent(name,ID,suffix);
         pic.insert(ID,pic_);
         scene->addItem(pic_);
         pic_->setPos(QPointF(x,y));
@@ -169,7 +155,7 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         int ID,ID_[2];
         QString type_[2];
         out>>ID>>type_[0]>>ID_[0]>>type_[1]>>ID_[1];
-        QGraphicsItem* item_[2];
+        MyGraphicsObject* item_[2];
         for(int j = 0;j<=1;j++){
             if(type_[j]=="pic")
                 item_[j] = pic[ID_[j]];
@@ -180,24 +166,9 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         }
         Connection *con = new Connection(item_[0],item_[1],ID);
         connection.insert(conNum,con);
-        if (auto item = dynamic_cast<Pic*>(item_[0])) {
-            connect(item, &Pic::position_changed, con, &Connection::updatePath);
-        }
-        else if (auto item = dynamic_cast<FileContent*>(item_[0])) {
-            connect(item, &FileContent::position_changed, con, &Connection::updatePath);
-        }
-        else if (auto item = dynamic_cast<EditableText*>(item_[0])) {
-            connect(item, &EditableText::position_changed, con, &Connection::updatePath);
-        }
-        if (auto item = dynamic_cast<Pic*>(item_[1])) {
-            connect(item, &Pic::position_changed, con, &Connection::updatePath);
-        }
-        else if (auto item = dynamic_cast<FileContent*>(item_[1])) {
-            connect(item, &FileContent::position_changed, con, &Connection::updatePath);
-        }
-        else if (auto item = dynamic_cast<EditableText*>(item_[1])) {
-            connect(item, &EditableText::position_changed, con, &Connection::updatePath);
-        }
+        for(int j = 0;j<=1;j++)
+            connect(item_[j],&MyGraphicsObject::position_changed,
+                    con,&Connection::updatePath);
         scene->addItem(con);
     }
 }

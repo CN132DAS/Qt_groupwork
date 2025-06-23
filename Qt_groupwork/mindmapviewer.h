@@ -13,6 +13,7 @@
 #include "savefile.h"
 
 extern QString _state_;
+extern bool _operation_;
 
 class MindMapViewer : public QGraphicsView
 {
@@ -20,16 +21,15 @@ private:
     QPoint m_last_pos;
     QGraphicsScene* scene;
     QWidget* parent;
-    qreal view_x,view_y;
     SaveFile* save_SF;
     bool m_panning;
-    QGraphicsItem* selectedItem;
+    MyGraphicsObject* selectedItem;
 public:
     MindMapViewer(QWidget* parent= nullptr,SaveFile* save = nullptr);
     void new_save();
     void close_save();
     void load(QString dir);
-    void clearSelectedItem();
+    void clear_selectedItem();
 public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
