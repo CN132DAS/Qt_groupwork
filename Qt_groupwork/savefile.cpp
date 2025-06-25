@@ -4,11 +4,10 @@
 SaveFile::SaveFile(QString saveName_,QObject *parent)
     : QObject{parent},saveName(saveName_),picNum(0),fileNum(0),textNum(0),conNum(0){}
 
-//
+//public
 
 void SaveFile::new_save(){
     saveName = _saveName_;
-    delete_tempFile();
     this->clear();
 }
 
@@ -107,10 +106,10 @@ void SaveFile::save(){
             i++;
         }
     }
-    delete_tempFile();
 }
 
 void SaveFile::load(QString dir,QGraphicsScene* scene){
+    this->clear();
     QFile saveFile(dir);
     saveFile.open(QIODevice::ReadWrite|QIODevice::Text);
     QTextStream out(&saveFile);
@@ -119,7 +118,6 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
     dir_.cdUp();
     saveName = dir_.dirName();
     set_saveName(saveName);
-    move_file();
     for(int i = 0;i<picNum;i++){
         int ID;
         out>>ID;
@@ -128,7 +126,7 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         QString suffix = QFileInfo(name).suffix();
         qreal x,y;
         out>>x>>y;
-        PictureContent* pic_ = new PictureContent(name,ID,suffix);
+        PictureContent* pic_ = new PictureContent(name,ID,suffix,true);
         pic.insert(ID,pic_);
         scene->addItem(pic_);
         pic_->setPos(QPointF(x,y));
@@ -141,7 +139,7 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
         out>>name;
         qreal x,y;
         out>>x>>y;
-        FileContent* file_ = new FileContent(name,ID);
+        FileContent* file_ = new FileContent(name,ID,true);
         file.insert(ID,file_);
         scene->addItem(file_);
         file_->setPos(QPointF(x,y));
@@ -173,13 +171,15 @@ void SaveFile::load(QString dir,QGraphicsScene* scene){
     }
 }
 
-void SaveFile::set_item_selectability(bool selectable){
+void SaveFile::set_item_selectability(bool selectable,bool connectionIncluded){
     for(auto item = pic.begin();item!=pic.end();item++)
         item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
     for(auto item = file.begin();item!=file.end();item++)
         item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
     for(auto item = text.begin();item!=text.end();item++)
         item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
+    if(connectionIncluded)
+        for(auto item = connection.begin();item!=connection.end();item++)
+            item.value()->setFlag(QGraphicsItem::ItemIsSelectable, selectable);
 }
 
-//槽函数

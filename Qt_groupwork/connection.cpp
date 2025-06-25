@@ -1,4 +1,5 @@
 #include "connection.h"
+#include "function.h"
 
 //public
 Connection::Connection(MyGraphicsObject *item1_,MyGraphicsObject *item2_,int ID_)
@@ -18,66 +19,15 @@ QPair<MyGraphicsObject*,MyGraphicsObject*> Connection::get_pair(){return qMakePa
 //private
 QPair<QPointF, QPointF> Connection::get_ConnectionPoints(MyGraphicsObject* item1, MyGraphicsObject* item2) const
 {
-    QRectF rect1 = item1->mapRectToScene(item1->boundingRect());
-    QRectF rect2 = item2->mapRectToScene(item2->boundingRect());
-
-    QPointF center1 = rect1.center();
-    QPointF center2 = rect2.center();
-
-    QPointF top1(center1.x(), rect1.top());
-    QPointF bottom1(center1.x(), rect1.bottom());
-    QPointF left1(rect1.left(), center1.y());
-    QPointF right1(rect1.right(), center1.y());
-
-    QPointF top2(center2.x(), rect2.top());
-    QPointF bottom2(center2.x(), rect2.bottom());
-    QPointF left2(rect2.left(), center2.y());
-    QPointF right2(rect2.right(), center2.y());
-
-    bool item2IsRight = center2.x() > center1.x();
-    bool item2IsBottom = center2.y() > center1.y();
-
-    QVector<QPointF> candidates1, candidates2;
-
-    if (item2IsRight) {
-        candidates1 << right1;
-    } else {
-        candidates1 << left1;
+    QPointF point[2];
+    MyGraphicsObject* a[2];
+    a[0] = item1;
+    a[1] = item2;
+    for(int i=0;i<=1;i++){
+        int type = determineRegion(a[i],a[1-i]);
+        point[i] = a[1-i]->get_middlePoint(type);
     }
-    if (item2IsBottom) {
-        candidates1 << bottom1;
-    } else {
-        candidates1 << top1;
-    }
-
-    if (!item2IsRight) {
-        candidates2 << right2;
-    } else {
-        candidates2 << left2;
-    }
-    if (!item2IsBottom) {
-        candidates2 << bottom2;
-    } else {
-        candidates2 << top2;
-    }
-
-    QPair<QPointF, QPointF> bestPair;
-    qreal bestAngleDiff = 360.0;
-
-    foreach (const QPointF& p1, candidates1) {
-        foreach (const QPointF& p2, candidates2) {
-            QPointF vec = p2 - p1;
-            qreal angle = qAtan2(qAbs(vec.y()), qAbs(vec.x())) * 180 / M_PI;
-            qreal angleDiff = qMin(qAbs(angle - 45), qAbs(angle + 45));
-
-            if (angleDiff < bestAngleDiff) {
-                bestAngleDiff = angleDiff;
-                bestPair = qMakePair(p1, p2);
-            }
-        }
-    }
-
-    return bestPair;
+    return qMakePair(point[0],point[1]);
 }
 
 void Connection::updatePath()
@@ -129,3 +79,5 @@ QRectF Connection::boundingRect() const
 int Connection::type() const{
     return UserType + 4;
 }
+
+void Connection::open(){}

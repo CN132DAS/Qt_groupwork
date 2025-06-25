@@ -4,8 +4,10 @@
 QIcon FileContent::fileIcon(":/assets/file.svg");
 
 //public
-FileContent::FileContent(QString name_,int ID_)
+FileContent::FileContent(QString name_,int ID_,bool loadMode)
     :ID(ID_),name(name_){
+    if(loadMode)
+        copy_file_to_temp(name_);
     iconSize = QSize(32, 32);
     QFontMetrics fm(QFont("times",10));
     textWidth = fm.horizontalAdvance(name);
@@ -53,30 +55,6 @@ int FileContent::type() const{
     return UserType + 2;
 }
 
-
-
-// QRectF FileContent::boundingRect() const {
-//     return QRectF(0, 0, totalWidth, totalHeight);
-// }
-
-// void FileContent::paint
-//     (QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget) {
-//     Q_UNUSED(option);
-//     Q_UNUSED(widget);
-//     painter->setPen(Qt::black);
-//     painter->setBrush(Qt::white);
-//     painter->drawRect(boundingRect());
-//     painter->drawText(QRectF(margin, margin,
-//                              textWidth, totalHeight - 2 * margin),
-//                       Qt::AlignLeft | Qt::AlignVCenter,
-//                       name);
-//     QRectF iconRect(totalWidth - margin - iconSize.width(),
-//                     (totalHeight - iconSize.height()) / 2,
-//                     iconSize.width(),
-//                     iconSize.height());
-//     fileIcon.paint(painter, iconRect.toRect());
-//     if(option->state & QStyle::State_Selected){
-//         painter->setPen(QPen(Qt::red, 3, Qt::DashLine));
-//         painter->drawRect(boundingRect().adjusted(-2, -2, 2, 2));
-//     }
-// }
+void FileContent::open(){
+    QDesktopServices::openUrl(QUrl::fromLocalFile(get_fileTempPath(this->name)));
+}

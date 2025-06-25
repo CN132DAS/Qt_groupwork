@@ -19,12 +19,13 @@ class FileContent : public MyGraphicsObject
     QSize iconSize;
     static QIcon fileIcon;
 public:
-    FileContent(QString name_,int ID_);
+    FileContent(QString name_,int ID_,bool loadMode = false);
     void save(QTextStream& out,int i);
     QString get_info() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget = nullptr) override;
     QRectF boundingRect() const override;
     int type() const override;
+    void open() override;
 };
 
 #endif // FILECONTENT_H

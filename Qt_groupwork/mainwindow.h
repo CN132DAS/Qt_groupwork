@@ -44,6 +44,7 @@ private:
     QAction* save_A;
     QAction* saveAs_A;
     QAction* close_A;
+    QAction* refresh_A;
 
     QMenu* edit;
     QAction* undo_A;
@@ -55,6 +56,7 @@ private:
     QPushButton* addPic_PB;
     QPushButton* addFile_PB;
     QPushButton* addCon_PB;
+    QPushButton* edit_PB;
     QPushButton* drag_PB;
 
 public:
@@ -62,16 +64,18 @@ public:
     ~MainWindow();
     void unfreeze(bool unfreeze);
 public slots:
-    void load_save();
-    void close_save();
     void toggle_addText_PB(bool checked);
     void toggle_addPic_PB(bool checked);
     void toggle_addFile_PB(bool checked);
     void toggle_addCon_PB(bool checked);
+    void toggle_edit_PB(bool checked);
     void toggle_drag_PB(bool checked);
     void only_toggle_one_button();
     void new_save();
     void save();
+    void load_save();
+    void close_save();
+    void refresh();
 signals:
     void state_changed();
     void unfreeze_state_changed(bool unfreeze);
@@ -79,5 +83,6 @@ private:
     Ui::MainWindow *ui;
 public:
     void resizeEvent(QResizeEvent* event) override;
+    void closeEvent(QCloseEvent *event) override;
 };
 #endif // MAINWINDOW_H

@@ -3,8 +3,10 @@
 
 QPen PictureContent::selectedPen = QPen(Qt::red, 3, Qt::DashLine);
 //public
-PictureContent::PictureContent(QString name_,int ID_,QString suffix_):
+PictureContent::PictureContent(QString name_,int ID_,QString suffix_,bool loadMode):
     MyGraphicsObject(),ID(ID_),suffix(suffix_) {
+    if(loadMode)
+        copy_file_to_temp(name_);
     picture = QPixmap(get_fileTempPath(name_));
     width = picture.width();
     height = picture.height();
@@ -39,4 +41,8 @@ QRectF PictureContent::boundingRect() const{
 
 int PictureContent::type() const{
     return UserType + 1;
+}
+
+void PictureContent::open(){
+    QDesktopServices::openUrl(QUrl::fromLocalFile(get_fileTempPath("Pic_"+QString::number(ID)+"."+suffix)));
 }

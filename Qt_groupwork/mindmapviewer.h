@@ -15,6 +15,14 @@
 extern QString _state_;
 extern bool _operation_;
 
+struct GraphicsViewState {
+    QPointF sceneCenter;
+    qreal zoomLevel;
+    GraphicsViewState() : zoomLevel(1.0) {}
+    GraphicsViewState(const QPointF& center, qreal zoom)
+        : sceneCenter(center), zoomLevel(zoom) {}
+};
+
 class MindMapViewer : public QGraphicsView
 {
 private:
@@ -30,10 +38,13 @@ public:
     void close_save();
     void load(QString dir);
     void clear_selectedItem();
+    GraphicsViewState get_state();
+    void restore_state(GraphicsViewState state);
 public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent* event) override;
 };
 

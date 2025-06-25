@@ -46,10 +46,20 @@ void MindMapViewer::clear_selectedItem(){
     selectedItem = nullptr;
 }
 
-//槽函数
+GraphicsViewState MindMapViewer::get_state(){
+    QPoint viewportCenter = this->viewport()->rect().center();
+    QPointF sceneCenter = this->mapToScene(viewportCenter);
+    qreal zoom = this->transform().m11();
+    return GraphicsViewState(sceneCenter, zoom);
+}
 
+void MindMapViewer::restore_state(GraphicsViewState state){
+    this->setTransform(QTransform());
+    this->scale(state.zoomLevel, state.zoomLevel);
+    this->centerOn(state.sceneCenter);
+}
 
-//重载函数
+//override
 
 void MindMapViewer::mousePressEvent(QMouseEvent* event){
     if(!this->isEnabled())
@@ -110,7 +120,7 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
                 }
             }
         }
-        else if(_state_ =="drag"){
+        else if(_state_ == "drag"){
             setTransformationAnchor(QGraphicsView::NoAnchor);
             m_last_pos = event->pos();
             m_panning = true;
@@ -134,7 +144,7 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
 }
 
 void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
-    if(_state_ =="drag"&&m_panning){
+    if(_state_ == "drag"&&m_panning){
         if(!selectedItem){
             QPointF mouseDelta = mapToScene(event->pos()) - mapToScene(m_last_pos);
             translate(mouseDelta.x(),mouseDelta.y());
@@ -152,7 +162,7 @@ void MindMapViewer::mouseMoveEvent(QMouseEvent* event){
 }
 
 void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
-    if(_state_ =="drag"){
+    if(_state_ == "drag"){
         setCursor(Qt::ArrowCursor);
         m_panning = false;
         if(selectedItem)
@@ -161,6 +171,19 @@ void MindMapViewer::mouseReleaseEvent(QMouseEvent* event){
         scene->update();
     }
     event->accept();
+}
+
+void MindMapViewer::mouseDoubleClickEvent(QMouseEvent *event){
+    if(!this->isEnabled())
+        return;
+    if(_state_ == "edit"){
+        QPointF scenePos = mapToScene(event->pos());
+        QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
+        if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
+            MyGraphicsObject* item = dynamic_cast<MyGraphicsObject*>(clickedItem);
+            item->open();
+        }
+    }
 }
 
 void MindMapViewer::wheelEvent(QWheelEvent* event){

@@ -45,9 +45,7 @@ public:
     // QPair<QPoint,EditableText*>add_text();
     Connection* add_connection(MyGraphicsObject* item1,MyGraphicsObject* item2);
     void save();
-    void set_item_selectability(bool selectable);
-public slots:
-signals:
+    void set_item_selectability(bool selectable, bool connectionIncluded = false);
     friend class MainWindow;
 };
 

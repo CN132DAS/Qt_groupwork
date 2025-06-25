@@ -14,5 +14,7 @@
         <file>assets/add-pic.svg</file>
         <file>assets/drag.svg</file>
         <file>assets/add-con.svg</file>
+        <file>assets/edit.svg</file>
+        <file>assets/refresh.svg</file>
     </qresource>
 </RCC>

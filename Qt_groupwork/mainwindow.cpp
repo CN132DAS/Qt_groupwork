@@ -45,24 +45,28 @@ MainWindow::MainWindow(QWidget *parent)
         save_A = new QAction(QStringLiteral("保存"),this);
         saveAs_A = new QAction(QStringLiteral("另存为"),this);
         close_A = new QAction(QStringLiteral("关闭"),this);
+        refresh_A = new QAction(QStringLiteral("刷新"),this);
 
         newSave_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_N));
         openSave_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_O));
         save_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_S));
         saveAs_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_A));
         close_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_W));
+        refresh_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_R));
 
         QIcon newSave_QI(":/assets/new-file.svg");
         QIcon openSave_QI(":/assets/file.svg");
         QIcon save_QI(":/assets/save.svg");
         QIcon saveAs_QI(":/assets/save-as.svg");
         QIcon close_QI(":/assets/close.svg");
+        QIcon refresh_QI(":/assets/refresh.svg");
 
         newSave_A->setIcon(newSave_QI);
         openSave_A->setIcon(openSave_QI);
         save_A->setIcon(save_QI);
         saveAs_A->setIcon(saveAs_QI);
         close_A->setIcon(close_QI);
+        refresh_A->setIcon(refresh_QI);
 
         menuBar->addMenu(fileOp);
         fileOp->addAction(newSave_A);
@@ -72,10 +76,12 @@ MainWindow::MainWindow(QWidget *parent)
         fileOp->addAction(saveAs_A);
         fileOp->addSeparator();
         fileOp->addAction(close_A);
+        fileOp->addAction(refresh_A);
 
         save_A->setEnabled(false);
         saveAs_A->setEnabled(false);
         close_A->setEnabled(false);
+        refresh_A->setEnabled(false);
 
         connect(newSave_A,&QAction::triggered,
                 this,&MainWindow::new_save);
@@ -85,7 +91,8 @@ MainWindow::MainWindow(QWidget *parent)
                 this,&MainWindow::save);
         connect(close_A,&QAction::triggered,
                 this,&MainWindow::close_save);
-
+        connect(refresh_A,&QAction::triggered,
+                this,&MainWindow::refresh);
     }
 
     {//第二个Qmenu及相关按钮的初始化
@@ -115,30 +122,35 @@ MainWindow::MainWindow(QWidget *parent)
         addPic_PB = new QPushButton("插入图片",toolBar);
         addFile_PB = new QPushButton("插入文件",toolBar);
         addCon_PB = new QPushButton("新建连接",toolBar);
+        edit_PB = new QPushButton("编辑",toolBar);
         drag_PB = new QPushButton("拖动",toolBar);
 
-        QIcon addText_Q(":/assets/add-text.svg");
-        QIcon addPic_Q(":/assets/add-pic.svg");
-        QIcon addFile_Q(":/assets/add-file.svg");
-        QIcon addCon_Q(":/assets/add-con.svg");
-        QIcon drag_Q(":/assets/drag.svg");
+        QIcon addText_QI(":/assets/add-text.svg");
+        QIcon addPic_QI(":/assets/add-pic.svg");
+        QIcon addFile_QI(":/assets/add-file.svg");
+        QIcon addCon_QI(":/assets/add-con.svg");
+        QIcon edit_QI(":/assets/edit.svg");
+        QIcon drag_QI(":/assets/drag.svg");
 
-        addText_PB->setIcon(addText_Q);
-        addPic_PB->setIcon(addPic_Q);
-        addFile_PB->setIcon(addFile_Q);
-        addCon_PB->setIcon(addCon_Q);
-        drag_PB->setIcon(drag_Q);
+        addText_PB->setIcon(addText_QI);
+        addPic_PB->setIcon(addPic_QI);
+        addFile_PB->setIcon(addFile_QI);
+        addCon_PB->setIcon(addCon_QI);
+        edit_PB->setIcon(edit_QI);
+        drag_PB->setIcon(drag_QI);
 
         addText_PB->setIconSize(QSize(40,40));
         addPic_PB->setIconSize(QSize(40,40));
         addFile_PB->setIconSize(QSize(40,40));
         addCon_PB->setIconSize(QSize(40,40));
+        edit_PB->setIconSize(QSize(40,40));
         drag_PB->setIconSize(QSize(40,40));
 
         addText_PB->setCheckable(true);
         addPic_PB->setCheckable(true);
         addFile_PB->setCheckable(true);
         addCon_PB->setCheckable(true);
+        edit_PB->setCheckable(true);
         drag_PB->setCheckable(true);
 
         toolBar->addWidget(addText_PB);
@@ -147,12 +159,14 @@ MainWindow::MainWindow(QWidget *parent)
         toolBar->addSeparator();
         toolBar->addWidget(addCon_PB);
         toolBar->addSeparator();
+        toolBar->addWidget(edit_PB);
         toolBar->addWidget(drag_PB);
 
         addText_PB->setEnabled(false);
         addPic_PB->setEnabled(false);
         addFile_PB->setEnabled(false);
         addCon_PB->setEnabled(false);
+        edit_PB->setEnabled(false);
         drag_PB->setEnabled(false);
 
         connect(addText_PB,&QAbstractButton::toggled,
@@ -163,6 +177,8 @@ MainWindow::MainWindow(QWidget *parent)
                 this,&MainWindow::toggle_addFile_PB);
         connect(addCon_PB,&QAbstractButton::toggled,
                 this,&MainWindow::toggle_addCon_PB);
+        connect(edit_PB,&QAbstractButton::toggled,
+                this,&MainWindow::toggle_edit_PB);
         connect(drag_PB,&QAbstractButton::toggled,
                 this,&MainWindow::toggle_drag_PB);
         connect(this,&MainWindow::state_changed,
@@ -181,14 +197,16 @@ void MainWindow::unfreeze(bool unfreeze){
     redo_A->setEnabled(unfreeze);
     save_A->setEnabled(unfreeze);
     saveAs_A->setEnabled(unfreeze);
+    refresh_A->setEnabled(unfreeze);
     addText_PB->setEnabled(unfreeze);
     addPic_PB->setEnabled(unfreeze);
     addFile_PB->setEnabled(unfreeze);
     addCon_PB->setEnabled(unfreeze);
+    edit_PB->setEnabled(unfreeze);
     drag_PB->setEnabled(unfreeze);
 }
 
-//槽函数
+//slot
 
 void MainWindow::toggle_addText_PB(bool checked){
     if(checked){
@@ -243,6 +261,20 @@ void MainWindow::toggle_addCon_PB(bool checked){
     }
 }
 
+void MainWindow::toggle_edit_PB(bool checked){
+    if(checked){
+        _state_ = "edit";
+        viewer->clear_selectedItem();
+        save_SF->set_item_selectability(true,true);
+        emit state_changed();
+    }
+    else if(_state_ == "edit"){
+        _state_ = "";
+        save_SF->set_item_selectability(false);
+        emit state_changed();
+    }
+}
+
 void MainWindow::toggle_drag_PB(bool checked){
     if(checked){
         _state_ = "drag";
@@ -268,26 +300,38 @@ void MainWindow::only_toggle_one_button(){
         addCon_PB->setChecked(false);
     if(_state_!="drag")
         drag_PB->setChecked(false);
+    if(_state_!="edit")
+        edit_PB->setChecked(false);
 }
 
 void MainWindow::new_save(){
-    QString saveName;
     if(_operation_){
-        bool confirm = (QMessageBox::question(nullptr, "存档未保存", "存档有未保存的操作，是否继续创建新存档?",
-                                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
-        if(!confirm)
-            return;
-        else{
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("有未保存的操作");
+        msgBox.setText("先保存吗");
+        QPushButton *yesButton = msgBox.addButton("保存", QMessageBox::YesRole);
+        QPushButton *noButton = msgBox.addButton("直接新建", QMessageBox::NoRole);
+        QPushButton *cancelButton = msgBox.addButton("取消", QMessageBox::RejectRole);
+        msgBox.setEscapeButton(nullptr);
+        msgBox.exec();
+        if(msgBox.clickedButton() == yesButton){
             this->save();
             this->close_save();
         }
+        else if(msgBox.clickedButton() == noButton){
+            _operation_ = false;
+            this->close_save();
+        }
+        else if(msgBox.clickedButton() == cancelButton)
+            return;
     }
+    QString saveName;
     while(1){
         bool ok = false;
         saveName = QInputDialog::getText(this,"新建文件","存档名",QLineEdit::Normal,QString("新建存档"),&ok);
         if(!ok)
             return;
-        else if(QFileInfo(_saveFolderPath_+"/"+saveName+"/save.dat").exists()){
+        else if(QFileInfo::exists(_saveFolderPath_+"/"+saveName+"/save.dat")){
             QMessageBox::warning(this,"存档已存在","存档已存在\n请更换存档名");
             ok = false;
         }
@@ -304,41 +348,36 @@ void MainWindow::new_save(){
     this->unfreeze(true);
 }
 
-void MainWindow::close_save(){
-    if(_operation_){
-        bool confirm = (QMessageBox::question(nullptr, "存档未保存", "存档有未保存的操作，是否直接关闭?",
-                                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
-        if(!confirm)
-            return;
-        else
-            this->save();
-    }
-    _saveName_ = "";
-    _state_ = "";
-    this->only_toggle_one_button();
-    this->unfreeze(false);
-    viewer->close_save();
-    this->setWindowTitle("MindMap");
-}
-
 void MainWindow::save(){
     save_SF->save();
     _operation_ = false;
 }
 
 void MainWindow::load_save(){
-    QString dir = QFileDialog::getOpenFileName(this,"选择存档",QString(),"文件 (*.dat)");
-    if(dir!=""){
-        if(_operation_){
-            bool confirm = (QMessageBox::question(nullptr, "存档未保存", "存档有未保存的操作，是否直接读取存档?",
-                                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes);
-            if(!confirm)
-                return;
-            else{
-                this->save();
-                this->close_save();
-            }
+    if(_operation_){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("有未保存的操作");
+        msgBox.setText("先保存吗");
+        QPushButton *yesButton = msgBox.addButton("保存", QMessageBox::YesRole);
+        QPushButton *noButton = msgBox.addButton("直接读取", QMessageBox::NoRole);
+        QPushButton *cancelButton = msgBox.addButton("取消", QMessageBox::RejectRole);
+        msgBox.setEscapeButton(nullptr);
+        msgBox.exec();
+        if(msgBox.clickedButton() == yesButton){
+            this->save();
+            this->close_save();
         }
+        else if(msgBox.clickedButton() == noButton){
+            _operation_ = false;
+            this->close_save();
+        }
+        else if(msgBox.clickedButton() == cancelButton)
+            return;
+    }
+    QString dir = QFileDialog::getOpenFileName(this,"选择存档",_saveFolderPath_,"文件 (*.dat)");
+    if(dir!=""){
+        if(_saveName_!="")
+            this->close_save();
         viewer->load(dir);
         this->unfreeze(true);
         QString title = _saveName_ + "   -MindMap";
@@ -346,7 +385,46 @@ void MainWindow::load_save(){
     }
 }
 
-//重写函数
+void MainWindow::close_save(){
+    if(_operation_){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("有未保存的操作");
+        msgBox.setText("先保存吗");
+        QPushButton *yesButton = msgBox.addButton("保存", QMessageBox::YesRole);
+        QPushButton *noButton = msgBox.addButton("直接关闭", QMessageBox::NoRole);
+        QPushButton *cancelButton = msgBox.addButton("取消", QMessageBox::RejectRole);
+        msgBox.setEscapeButton(nullptr);
+        msgBox.exec();
+        if(msgBox.clickedButton() == yesButton)
+            this->save();
+        else if(msgBox.clickedButton() == cancelButton)
+            return;
+    }
+    delete_tempFile();
+    _saveName_ = "";
+    _state_ = "";
+    _operation_ = false;
+    this->only_toggle_one_button();
+    this->unfreeze(false);
+    viewer->close_save();
+    this->setWindowTitle("MindMap");
+}
+
+void MainWindow::refresh(){
+    QString saveName = _saveName_;
+    QString dir = get_filePath("save.dat");
+    GraphicsViewState tempState = viewer->get_state();
+    this->save();
+    this->close_save();
+    _saveName_ = saveName;
+    viewer->load(dir);
+    this->unfreeze(true);
+    QString title = _saveName_ + "   -MindMap";
+    this->setWindowTitle(title);
+    viewer->restore_state(tempState);
+}
+
+//override
 
 void MainWindow::resizeEvent(QResizeEvent *event){
     int h_ = event->size().height();
@@ -354,4 +432,31 @@ void MainWindow::resizeEvent(QResizeEvent *event){
     int menuBarH = menuBar->height();
     toolBar->resize(100,h_-menuBarH);
     viewer->resize(w_-100,h_-menuBarH);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event){
+    if(_operation_){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("有未保存的操作");
+        msgBox.setText("先保存吗");
+        QPushButton *yesButton = msgBox.addButton("保存", QMessageBox::YesRole);
+        QPushButton *noButton = msgBox.addButton("直接退出", QMessageBox::NoRole);
+        QPushButton *cancelButton = msgBox.addButton("取消", QMessageBox::RejectRole);
+        msgBox.setEscapeButton(nullptr);
+        msgBox.exec();
+        if(msgBox.clickedButton() == yesButton){
+            this->save();
+            this->close_save();
+            event->accept();
+        }
+        else if (msgBox.clickedButton() == noButton){
+            _operation_ = false;
+            this->close_save();
+            event->accept();
+        }
+        else if (msgBox.clickedButton() == cancelButton)
+            event->ignore();
+    }
+    else if(_saveName_ != "")
+        this->close_save();
 }
