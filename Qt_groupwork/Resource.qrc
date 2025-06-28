@@ -16,5 +16,6 @@
         <file>assets/add-con.svg</file>
         <file>assets/edit.svg</file>
         <file>assets/refresh.svg</file>
+        <file>assets/AI.svg</file>
     </qresource>
 </RCC>

@@ -6,6 +6,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    AI = new AImodule();
+    connect(AI,&AImodule::close,
+            this,&MainWindow::untoggle_AI_PB);
+
     ui->setupUi(this);
     QFile theme(":/assets/theme.qss");
     theme.open(QFile::ReadOnly);
@@ -124,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
         addCon_PB = new QPushButton("新建连接",toolBar);
         edit_PB = new QPushButton("编辑",toolBar);
         drag_PB = new QPushButton("拖动",toolBar);
+        AI_PB = new QPushButton("AI",toolBar);
 
         QIcon addText_QI(":/assets/add-text.svg");
         QIcon addPic_QI(":/assets/add-pic.svg");
@@ -131,6 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
         QIcon addCon_QI(":/assets/add-con.svg");
         QIcon edit_QI(":/assets/edit.svg");
         QIcon drag_QI(":/assets/drag.svg");
+        QIcon AI_QI(":/assets/AI.svg");
 
         addText_PB->setIcon(addText_QI);
         addPic_PB->setIcon(addPic_QI);
@@ -138,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
         addCon_PB->setIcon(addCon_QI);
         edit_PB->setIcon(edit_QI);
         drag_PB->setIcon(drag_QI);
+        AI_PB->setIcon(AI_QI);
 
         addText_PB->setIconSize(QSize(40,40));
         addPic_PB->setIconSize(QSize(40,40));
@@ -145,6 +152,7 @@ MainWindow::MainWindow(QWidget *parent)
         addCon_PB->setIconSize(QSize(40,40));
         edit_PB->setIconSize(QSize(40,40));
         drag_PB->setIconSize(QSize(40,40));
+        AI_PB->setIconSize(QSize(40,40));
 
         addText_PB->setCheckable(true);
         addPic_PB->setCheckable(true);
@@ -152,6 +160,7 @@ MainWindow::MainWindow(QWidget *parent)
         addCon_PB->setCheckable(true);
         edit_PB->setCheckable(true);
         drag_PB->setCheckable(true);
+        AI_PB->setCheckable(true);
 
         toolBar->addWidget(addText_PB);
         toolBar->addWidget(addPic_PB);
@@ -161,6 +170,8 @@ MainWindow::MainWindow(QWidget *parent)
         toolBar->addSeparator();
         toolBar->addWidget(edit_PB);
         toolBar->addWidget(drag_PB);
+        toolBar->addSeparator();
+        toolBar->addWidget(AI_PB);
 
         addText_PB->setEnabled(false);
         addPic_PB->setEnabled(false);
@@ -183,6 +194,8 @@ MainWindow::MainWindow(QWidget *parent)
                 this,&MainWindow::toggle_drag_PB);
         connect(this,&MainWindow::state_changed,
                 this,&MainWindow::only_toggle_one_button);
+        connect(AI_PB,&QAbstractButton::toggled,
+                this,&MainWindow::toggle_AI_PB);
     }
 }
 
@@ -207,6 +220,9 @@ void MainWindow::unfreeze(bool unfreeze){
 }
 
 //slot
+void MainWindow::untoggle_AI_PB(){
+    AI_PB->setChecked(false);
+}
 
 void MainWindow::toggle_addText_PB(bool checked){
     if(checked){
@@ -287,6 +303,13 @@ void MainWindow::toggle_drag_PB(bool checked){
         save_SF->set_item_selectability(false);
         emit state_changed();
     }
+}
+
+void MainWindow::toggle_AI_PB(bool checked){
+    if(checked)
+        AI->show_ui();
+    else
+        AI->hide();
 }
 
 void MainWindow::only_toggle_one_button(){

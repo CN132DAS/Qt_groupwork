@@ -17,6 +17,7 @@
 #include <QRect>
 #include <QResizeEvent>
 #include <QToolBar>
+#include "AImodule.h"
 #include "mindmapviewer.h"
 #include "savefile.h"
 
@@ -35,6 +36,7 @@ class MainWindow : public QMainWindow
 private:
     SaveFile* save_SF;
     MindMapViewer* viewer;
+    AImodule* AI; 
 
     QMenuBar* menuBar;
 
@@ -58,18 +60,21 @@ private:
     QPushButton* addCon_PB;
     QPushButton* edit_PB;
     QPushButton* drag_PB;
+    QPushButton* AI_PB;
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void unfreeze(bool unfreeze);
 public slots:
+    void untoggle_AI_PB();
     void toggle_addText_PB(bool checked);
     void toggle_addPic_PB(bool checked);
     void toggle_addFile_PB(bool checked);
     void toggle_addCon_PB(bool checked);
     void toggle_edit_PB(bool checked);
     void toggle_drag_PB(bool checked);
+    void toggle_AI_PB(bool checked);
     void only_toggle_one_button();
     void new_save();
     void save();
