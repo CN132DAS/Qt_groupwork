@@ -48,10 +48,6 @@ private:
     QAction* close_A;
     QAction* refresh_A;
 
-    QMenu* edit;
-    QAction* undo_A;
-    QAction* redo_A;
-
     QToolBar* toolBar;
 
     QPushButton* addText_PB;

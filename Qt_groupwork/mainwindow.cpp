@@ -99,28 +99,6 @@ MainWindow::MainWindow(QWidget *parent)
                 this,&MainWindow::refresh);
     }
 
-    {//第二个Qmenu及相关按钮的初始化
-        edit = new QMenu(QStringLiteral("编辑(&E)"),this);
-
-        undo_A = new QAction(QStringLiteral("撤销"),this);
-        redo_A = new QAction(QStringLiteral("重做"),this);
-
-        undo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Z));
-        redo_A->setShortcut(QKeySequence(Qt::CTRL|Qt::Key_Y));
-
-        QIcon undo_QI(":/assets/undo.svg");
-        QIcon redo_QI(":/assets/redo.svg");
-
-        undo_A->setIcon(undo_QI);
-        redo_A->setIcon(redo_QI);
-
-        menuBar->addMenu(edit);
-        edit->addAction(undo_A);
-        edit->addAction(redo_A);
-        undo_A->setEnabled(false);
-        redo_A->setEnabled(false);
-    }
-
     {//QToolBar中按钮的初始化
         addText_PB = new QPushButton("插入文字",toolBar);
         addPic_PB = new QPushButton("插入图片",toolBar);
@@ -206,8 +184,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::unfreeze(bool unfreeze){
     close_A->setEnabled(unfreeze);
-    undo_A->setEnabled(unfreeze);
-    redo_A->setEnabled(unfreeze);
     save_A->setEnabled(unfreeze);
     saveAs_A->setEnabled(unfreeze);
     refresh_A->setEnabled(unfreeze);

@@ -120,6 +120,26 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
                 }
             }
         }
+        else if(_state_ == "edit"){
+            QPointF scenePos = mapToScene(event->pos());
+            QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
+            if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
+                MyGraphicsObject *newClickedItem = dynamic_cast<MyGraphicsObject*>(clickedItem);
+                if(selectedItem == nullptr){
+                    selectedItem = newClickedItem;
+                    selectedItem->setSelected(true);
+                }
+                else{
+                    selectedItem->setSelected(false);
+                    selectedItem = newClickedItem;
+                    selectedItem->setSelected(true);
+                }
+            }
+            else if(selectedItem != nullptr){
+                selectedItem->setSelected(false);
+                selectedItem = nullptr;
+            }
+        }
         else if(_state_ == "drag"){
             setTransformationAnchor(QGraphicsView::NoAnchor);
             m_last_pos = event->pos();
@@ -195,4 +215,9 @@ void MindMapViewer::wheelEvent(QWheelEvent* event){
         scene->update();
         event->accept();
     }
+}
+
+void MindMapViewer::keyPressEvent(QKeyEvent *event){
+    if(_state_ == "edit"&&selectedItem != nullptr&& event->key()==Qt::Key_Backspace)
+
 }
