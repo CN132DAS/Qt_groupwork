@@ -1,0 +1,23 @@
+QMenuBar{
+    background:#CDDEEB;
+}
+QToolBar{
+    border: 1px solid black;
+    background:white;
+    spacing:10;
+}
+MainWindow{
+    background:#F9F9F9;
+}
+QPushButton{
+    padding-top:5px;
+    padding-bottom: 5px;
+    border: 1px solid grey;
+    background-color: white;
+}
+QPushButton:hover {
+    background-color: #E5E5E5;
+}
+QPushButton:open {
+    background-color: #CCCCCC;
+}
