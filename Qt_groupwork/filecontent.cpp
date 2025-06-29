@@ -16,11 +16,14 @@ FileContent::FileContent(QString name_,int ID_,bool loadMode)
     totalHeight = qMax(fm.height(), iconSize.height()) + 2 * margin;
 }
 
-void FileContent::save(QTextStream& out,int i){
-    QPointF pos = this->scenePos();
-    out<<i<<" "<<this->name<<" "<<pos.x()<<" "<<pos.y()<<" "<<Qt::endl;
-    QFile::copy(get_fileTempPath(this->name),get_filePath(this->name));
-    this->ID = i;
+void FileContent::save(QTextStream& out,int& i){
+    if(!deleted){
+        QPointF pos = this->scenePos();
+        out<<i<<" "<<this->name<<" "<<pos.x()<<" "<<pos.y()<<" "<<Qt::endl;
+        QFile::copy(get_fileTempPath(this->name),get_filePath(this->name));
+        this->ID = i;
+        i++;
+    }
 }
 
 //override

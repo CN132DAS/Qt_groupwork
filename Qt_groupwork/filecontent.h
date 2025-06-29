@@ -20,7 +20,7 @@ class FileContent : public MyGraphicsObject
     static QIcon fileIcon;
 public:
     FileContent(QString name_,int ID_,bool loadMode = false);
-    void save(QTextStream& out,int i);
+    void save(QTextStream& out,int& i);
     QString get_info() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget = nullptr) override;
     QRectF boundingRect() const override;

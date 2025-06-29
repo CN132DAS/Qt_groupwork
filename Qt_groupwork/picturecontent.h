@@ -18,7 +18,7 @@ private:
     static QPen selectedPen;
 public:
     PictureContent(QString name_,int ID_,QString suffix_,bool loadMode = false);
-    void save(QTextStream& out,int new_ID);
+    void save(QTextStream& out,int& new_ID);
     QString get_info() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;

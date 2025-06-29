@@ -1,6 +1,6 @@
 #include "mygraphicsobject.h"
 
-MyGraphicsObject::MyGraphicsObject() {}
+MyGraphicsObject::MyGraphicsObject():deleted(false) {}
 
 QPointF MyGraphicsObject::get_middlePoint(int type){
     QRectF rect = this->mapRectToScene(this->boundingRect());

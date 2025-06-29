@@ -36,17 +36,21 @@ private:
     QMap<int,Connection*> connection;
 public:
     explicit SaveFile(QString saveName_="",QObject *parent = nullptr);
-    void add_text(EditableText* text_);
     void load(QString dir,QGraphicsScene* scene);
     void new_save();
     void clear();
     FileContent* add_file(QString dir);
     PictureContent* add_pic(QString dir);
-    // QPair<QPoint,EditableText*>add_text();
+    EditableText* add_text();
     Connection* add_connection(MyGraphicsObject* item1,MyGraphicsObject* item2);
     void save();
     void set_item_selectability(bool selectable, bool connectionIncluded = false);
     friend class MainWindow;
+public slots:
+    void decline_picNum();
+    void decline_fileNum();
+    void decline_textNum();
+    void decline_conNum();
 };
 
 #endif // SAVEFILE_H

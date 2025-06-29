@@ -3,15 +3,18 @@
 
 //public
 Connection::Connection(MyGraphicsObject *item1_,MyGraphicsObject *item2_,int ID_)
-    :ID(ID_),item1(item1_),item2(item2_){
+    :ID(ID_),item1(item1_),item2(item2_),deleteOnce(true){
     pen = QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     setZValue(-1);
     updatePath();
 }
 
-void Connection::save(QTextStream& out,int i){
-    this->ID = i;
-    out<<this->ID<<" "<<this->get_info(item1)<<" "<<this->get_info(item2)<<Qt::endl;
+void Connection::save(QTextStream& out,int& i){
+    if(deleteOnce){
+        this->ID = i;
+        out<<this->ID<<" "<<this->get_info(item1)<<" "<<this->get_info(item2)<<Qt::endl;
+        i++;
+    }
 }
 
 QPair<MyGraphicsObject*,MyGraphicsObject*> Connection::get_pair(){return qMakePair(item1,item2);}
@@ -56,6 +59,17 @@ void Connection::updatePath()
 
 QString Connection::get_info(MyGraphicsObject* item){
     return item->get_info();
+}
+
+void Connection::delete_(){
+    if(deleteOnce){
+        deleteOnce = false;
+        deleted = true;
+        emit deleted_();
+        QGraphicsScene* scene = this->scene();
+        scene->removeItem(this);
+        scene->update();
+    }
 }
 
 //override

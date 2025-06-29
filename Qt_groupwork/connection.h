@@ -2,6 +2,7 @@
 #define CONNECTION_H
 
 #include <QGraphicsObject>
+#include <QGraphicsScene>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPen>
@@ -11,6 +12,7 @@ class Connection : public MyGraphicsObject
 {
 private:
     int ID;
+    bool deleteOnce;
     MyGraphicsObject *item1,*item2;
     QPen pen;
     QPainterPath path;
@@ -19,7 +21,7 @@ private:
     QString get_info(MyGraphicsObject* item);
 public:
     Connection(MyGraphicsObject *item1_,MyGraphicsObject *item2_,int ID_);
-    void save(QTextStream& out,int i);
+    void save(QTextStream& out,int& i);
     QPair<MyGraphicsObject*,MyGraphicsObject*> get_pair();
     QString get_info() const override;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
@@ -28,6 +30,9 @@ public:
     void open() override;
 public slots:
     void updatePath();
+    void delete_();
+signals:
+    void to_delete(Connection* con);
 };
 
 #endif // CONNECTION_H

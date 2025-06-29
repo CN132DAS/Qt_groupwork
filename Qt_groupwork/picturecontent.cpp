@@ -12,13 +12,16 @@ PictureContent::PictureContent(QString name_,int ID_,QString suffix_,bool loadMo
     height = picture.height();
 }
 
-void PictureContent::save(QTextStream& out,int i){
-    QPointF pos = this->scenePos();
-    QString oldName = "Pic_"+QString::number(ID)+"."+suffix;
-    QString newName = "Pic_"+QString::number(i)+"."+suffix;
-    out<<i<<" "<<newName<<" "<<pos.x()<<" "<<pos.y()<<Qt::endl;
-    QFile::copy(get_fileTempPath(oldName),get_filePath(newName));
-    ID = i;
+void PictureContent::save(QTextStream& out,int& i){
+    if(!deleted){
+        QPointF pos = this->scenePos();
+        QString oldName = "Pic_"+QString::number(ID)+"."+suffix;
+        QString newName = "Pic_"+QString::number(i)+"."+suffix;
+        out<<i<<" "<<newName<<" "<<pos.x()<<" "<<pos.y()<<Qt::endl;
+        QFile::copy(get_fileTempPath(oldName),get_filePath(newName));
+        ID = i;
+        i++;
+    }
 }
 
 //override

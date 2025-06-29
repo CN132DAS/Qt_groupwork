@@ -66,13 +66,11 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
         return;
     if(event->button() == Qt::LeftButton){
         if(_state_ == "addText"){
-            // auto pair = save_SF->add_text();
-            // QPoint delta = pair.first;
-            // EditableText* text = pair.second;
-            // scene->addItem(text);
-            // QPointF scene_pos = mapToScene(event->pos());
-            // scene_pos -= delta;
-            // text->setPos(scene_pos);
+            EditableText* txt = save_SF->add_text();
+            _operation_ = true;
+            scene->addItem(txt);
+            QPointF scene_pos = mapToScene(event->pos());
+            txt->setPos(scene_pos);
         }
         else if (_state_ == "addPic"){
             QString dir = QFileDialog::getOpenFileName(this,"选择图片",QString(), "图像 (*.png *.xpm *.jpg)");
@@ -99,6 +97,8 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
         else if(_state_ == "addCon"){
             QPointF scenePos = mapToScene(event->pos());
             QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
+            if (clickedItem == nullptr)
+                return;
             if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
                 MyGraphicsObject *newClickedItem = dynamic_cast<MyGraphicsObject*>(clickedItem);
                 if(selectedItem == nullptr){
@@ -123,6 +123,8 @@ void MindMapViewer::mousePressEvent(QMouseEvent* event){
         else if(_state_ == "edit"){
             QPointF scenePos = mapToScene(event->pos());
             QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
+            if (clickedItem == nullptr)
+                return;
             if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
                 MyGraphicsObject *newClickedItem = dynamic_cast<MyGraphicsObject*>(clickedItem);
                 if(selectedItem == nullptr){
@@ -199,6 +201,8 @@ void MindMapViewer::mouseDoubleClickEvent(QMouseEvent *event){
     if(_state_ == "edit"){
         QPointF scenePos = mapToScene(event->pos());
         QGraphicsItem *clickedItem = scene->itemAt(scenePos, QTransform());
+        if (clickedItem == nullptr)
+            return;
         if (clickedItem->flags() & QGraphicsItem::ItemIsSelectable){
             MyGraphicsObject* item = dynamic_cast<MyGraphicsObject*>(clickedItem);
             item->open();
@@ -218,6 +222,11 @@ void MindMapViewer::wheelEvent(QWheelEvent* event){
 }
 
 void MindMapViewer::keyPressEvent(QKeyEvent *event){
-    if(_state_ == "edit"&&selectedItem != nullptr&& event->key()==Qt::Key_Backspace)
-
+    if(_state_ == "edit"&&selectedItem != nullptr&& event->key()==Qt::Key_Backspace){
+        scene->removeItem(selectedItem);
+        selectedItem->deleted = true;
+        emit selectedItem->deleted_();
+        selectedItem = nullptr;
+        scene->update();
+    }
 }

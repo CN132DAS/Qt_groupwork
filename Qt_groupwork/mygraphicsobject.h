@@ -10,12 +10,14 @@ class MyGraphicsObject : public QGraphicsObject
 {
     Q_OBJECT
 public:
+    bool deleted;
     MyGraphicsObject();
     QPointF get_middlePoint(int type);
     virtual QString get_info() const = 0;
     virtual void open() = 0;
 signals:
     void position_changed();
+    void deleted_();
 };
 
 int determineRegion(MyGraphicsObject* item1,MyGraphicsObject* item2);
