@@ -6,6 +6,8 @@ AImodule::AImodule(QWidget *parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle("AI Module");
+    QIcon WindowIcon(":/assets/WindowIcon.png");
+    setWindowIcon(WindowIcon);
     this->resize(500,700);
 
     mainLayout = new QVBoxLayout(this);

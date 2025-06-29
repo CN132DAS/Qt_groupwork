@@ -12,7 +12,6 @@ class Connection : public MyGraphicsObject
 {
 private:
     int ID;
-    bool deleteOnce;
     MyGraphicsObject *item1,*item2;
     QPen pen;
     QPainterPath path;
@@ -20,6 +19,7 @@ private:
     QPair<QPointF, QPointF> get_ConnectionPoints(MyGraphicsObject* item1, MyGraphicsObject* item2) const;
     QString get_info(MyGraphicsObject* item);
 public:
+    bool deleteOnce;
     Connection(MyGraphicsObject *item1_,MyGraphicsObject *item2_,int ID_);
     void save(QTextStream& out,int& i);
     QPair<MyGraphicsObject*,MyGraphicsObject*> get_pair();

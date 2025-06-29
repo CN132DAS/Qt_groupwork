@@ -66,6 +66,11 @@ Connection* SaveFile::add_connection(MyGraphicsObject* item1,MyGraphicsObject* i
     for(auto item = connection.begin();item!=connection.end();item++){
         auto pair = (*item)->get_pair();
         if(qMakePair(item1,item2)==pair ||qMakePair(item2,item1)==pair)
+            if(item.value()->deleted){
+                item.value()->deleted = false;
+                item.value()->deleteOnce = true;
+                return item.value();
+            }
             return nullptr;
     }
     conNum++;
